@@ -96,6 +96,9 @@ export function createAudio() {
   // Prime the voice list (some browsers populate it asynchronously).
   if (hasSpeech) window.speechSynthesis.getVoices();
 
+  // iOS: ambient session makes page audio (incl. speech synthesis) respect the hardware mute switch.
+  try { if ('audioSession' in navigator) navigator.audioSession.type = 'ambient'; } catch (e) { /* unsupported */ }
+
   let ctx = null;
   let bus = null; // ducking node (TTS)
   let master = null; // mute node

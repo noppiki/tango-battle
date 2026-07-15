@@ -232,7 +232,7 @@ export function createUI({ srs, words, audio }) {
       const sdq = s.deck[s.qi] && s.deck[s.qi].sd;
       const canUse = i === s.turn && it && !s.answered && !s.stealing && !s.rolling[i] && !sdq && !s.miracleActive;
       const buffs = (s.buffDash[i] ? ' 🍬発動中' : '') + (s.buffStar[i] ? ' ✨発動中' : '');
-      return `<div class="ichip ${i === s.turn ? 'on' : ''}" id="ichip${i}">
+      return `<div class="ichip ${i === s.turn ? 'on' : ''}${canUse ? ' usable' : ''}" id="ichip${i}">
       <span class="iic">${s.rolling[i] ? itemImg(null) : itemImg(s.items[i] || null)}</span>
       <span class="ids"><b>${B.PNAME[i]}</b> ${s.rolling[i] ? uiIc('gift', 'ic-inline') + ' ルーレット中…' : it ? it.nm + '「' + it.ds + '」' : 'アイテムなし'}${buffs}</span>
       ${canUse ? `<button data-use="${i}">つかう!</button>` : ''}
