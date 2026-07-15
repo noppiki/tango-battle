@@ -5,10 +5,18 @@
 // the plain option text; inkify only hides characters visually).
 
 import { POSNAME } from './balance.js';
-import { ITEMS } from './items.js';
+import { ITEMS, EMPTY_ITEM_IMG } from './items.js';
 import { filterByCat } from './srs.js';
 
 const $ = (id) => document.getElementById(id);
+
+// Item sprite markup. `key` null -> empty slot sprite. Escapes the alt text.
+function itemImg(key) {
+  const it = key ? ITEMS[key] : null;
+  const src = it ? it.img : EMPTY_ITEM_IMG;
+  const alt = it ? it.nm : 'アイテムなし';
+  return `<img class="iimg" src="${src}" alt="${alt}">`;
+}
 
 // createUI({ srs, words, audio }) -> ui adapter used by the battle engine + main.
 export function createUI({ srs, words, audio }) {
@@ -192,13 +200,13 @@ export function createUI({ srs, words, audio }) {
       const canUse = i === s.turn && it && !s.answered && !s.stealing && !s.rolling[i] && !sdq && !s.miracleActive;
       const buffs = (s.buffDash[i] ? ' 🍬発動中' : '') + (s.buffStar[i] ? ' ✨発動中' : '');
       return `<div class="ichip ${i === s.turn ? 'on' : ''}" id="ichip${i}">
-      <span class="iic">${s.rolling[i] ? '❓' : it ? it.ic : '➖'}</span>
+      <span class="iic">${s.rolling[i] ? itemImg(null) : itemImg(s.items[i] || null)}</span>
       <span class="ids"><b>${B.PNAME[i]}</b> ${s.rolling[i] ? '🎁 ルーレット中…' : it ? it.nm + '「' + it.ds + '」' : 'アイテムなし'}${buffs}</span>
       ${canUse ? `<button data-use="${i}">つかう!</button>` : ''}
     </div>`;
     });
     const floorChip = s.floorItem
-      ? `<div class="ichip" style="flex:0 0 auto;border-style:solid;border-color:var(--blue);background:var(--blue-bg);color:var(--blue-dk);"><span class="iic">${ITEMS[s.floorItem].ic}</span><span class="ids"><b>落ちてる!</b><br>次に正解した人がGET</span></div>`
+      ? `<div class="ichip" style="flex:0 0 auto;border-style:solid;border-color:var(--blue);background:var(--blue-bg);color:var(--blue-dk);"><span class="iic">${itemImg(s.floorItem)}</span><span class="ids"><b>落ちてる!</b><br>次に正解した人がGET</span></div>`
       : '';
     bar.innerHTML = chips[0] + floorChip + chips[1];
     bar.querySelectorAll('button[data-use]').forEach((btn) => {
@@ -207,12 +215,12 @@ export function createUI({ srs, words, audio }) {
   }
 
   function animateItemRoll(si, done) {
-    const icons = Object.values(ITEMS).map((x) => x.ic);
+    const keys = Object.keys(ITEMS);
     let n = 0;
     const iv = setInterval(() => {
       n++;
       const el = $('ichip' + si);
-      if (el) el.querySelector('.iic').textContent = icons[n % icons.length];
+      if (el) el.querySelector('.iic').innerHTML = itemImg(keys[n % keys.length]);
     }, 90);
     setTimeout(() => {
       clearInterval(iv);

@@ -32,6 +32,28 @@ function removeServiceWorkerRegistration(htmlSource) {
   });
 }
 
+const itemSpritePattern = /(?:\.\/)?img\/items\/([a-zA-Z0-9_-]+)\.png/g;
+
+// Inline every referenced img/items/*.png (in the bundled JS string paths and
+// any HTML) as a base64 data URI so the single-file build is fully offline.
+async function inlineItemSprites(source) {
+  const names = new Set();
+  for (const match of source.matchAll(itemSpritePattern)) {
+    names.add(match[1]);
+  }
+  if (names.size === 0) {
+    return source;
+  }
+  const dataUris = {};
+  await Promise.all(
+    [...names].map(async (name) => {
+      const buffer = await readFile(resolve(projectRoot, `img/items/${name}.png`));
+      dataUris[name] = `data:image/png;base64,${buffer.toString("base64")}`;
+    })
+  );
+  return source.replace(itemSpritePattern, (_match, name) => dataUris[name]);
+}
+
 async function inlineStylesheet(htmlSource) {
   if (!stylesheetLinkPattern.test(htmlSource)) {
     return htmlSource;
@@ -79,9 +101,10 @@ async function buildSingleFile() {
   }
 
   const htmlWithInlineStyles = await inlineStylesheet(htmlSource);
-  const outputHtml = removeServiceWorkerRegistration(htmlWithInlineStyles)
+  const htmlWithBundle = removeServiceWorkerRegistration(htmlWithInlineStyles)
     .replace(manifestLinkPattern, "\n")
     .replace(moduleScriptPattern, scripts);
+  const outputHtml = await inlineItemSprites(htmlWithBundle);
 
   await mkdir(dirname(outputPath), { recursive: true });
   await writeFile(outputPath, outputHtml, "utf8");

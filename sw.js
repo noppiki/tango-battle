@@ -1,4 +1,4 @@
-const CACHE_VERSION = "v3";
+const CACHE_VERSION = "v4";
 const CACHE_NAME = `tango-battle-shell-${CACHE_VERSION}`;
 
 const APP_SHELL = [
@@ -17,6 +17,14 @@ const APP_SHELL = [
   "./manifest.json",
   "./icons/icon-192.png",
   "./icons/icon-512.png",
+  "./img/items/mush.png",
+  "./img/items/green.png",
+  "./img/items/red.png",
+  "./img/items/banana.png",
+  "./img/items/thunder.png",
+  "./img/items/squid.png",
+  "./img/items/star.png",
+  "./img/items/empty.png",
 ];
 
 self.addEventListener("install", (event) => {

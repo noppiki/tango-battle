@@ -634,13 +634,19 @@ label.fl {
 }
 .ichip.on { border-color: var(--c-item); box-shadow: inset 0 2px 0 var(--bevel-lo), 0 0 12px rgba(178, 107, 255, .35); }
 .ichip .iic {
-  font-size: 22px;
+  display: inline-flex;
   line-height: 1;
-  image-rendering: pixelated;
-  filter: drop-shadow(1px 1px 0 #000);
   padding: 2px;
   border: 2px solid var(--line-hi);
   background: #0c1020;
+}
+.ichip .iic .iimg {
+  width: 40px;
+  height: 40px;
+  display: block;
+  /* 128px sprite scaled down — smooth (not pixelated) reads better here */
+  image-rendering: auto;
+  filter: drop-shadow(1px 1px 0 #000);
 }
 .ichip.on .iic { border-color: var(--c-item); }
 .ichip .ids { flex: 1; line-height: 1.35; color: var(--ink); }
