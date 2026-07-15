@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="manifest" href="./manifest.json">
 <title>英検準2級 単語バトル</title>
 <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;500;700&family=Outfit:wght@500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -72,6 +73,7 @@ label.fl{display:block;font-size:13px;font-weight:700;color:var(--sub);margin:14
 .winner .t{font-size:22px;font-weight:700;}
 .winner .d{font-size:14px;color:var(--sub);}
 .note{font-size:12px;color:var(--sub);margin-top:10px;}
+.footer-note{font-size:11px;color:var(--sub);margin-top:24px;text-align:center;}
 .multbadge{display:inline-block;margin-top:10px;font-size:13px;font-weight:700;padding:3px 16px;border-radius:99px;background:var(--amber-bg);color:var(--amber-dk);animation:pulse 1.1s infinite;}
 .multbadge.final{background:var(--coral-bg);color:var(--coral-dk);}
 @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.07)}}
@@ -204,6 +206,10 @@ body.sdmode .qmeta .badge.re{background:var(--coral-bg);color:var(--coral-dk);}
       <button id="btnHome">ホームへ</button>
     </div>
   </div>
+  <p class="footer-note">
+    本アプリは実用英語技能検定 準2級レベルの学習を想定した非公式の学習教材です。
+    日本英語検定協会とは関係ありません。単語リストは公開語彙資料等を参考に独自編集しています。
+  </p>
 </div>
 <div id="fxlayer" style="position:fixed;inset:0;pointer-events:none;z-index:80;overflow:hidden;"></div>
 <div id="sdfx" class="hidden">
@@ -215,5 +221,6 @@ body.sdmode .qmeta .badge.re{background:var(--coral-bg);color:var(--coral-dk);}
   </div>
 </div>
 <script type="module" src="js/main.js"></script>
+<script src="js/pwa-register.js"></script>
 </body>
 </html>

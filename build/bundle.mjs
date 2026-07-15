@@ -22,9 +22,10 @@ function inlineScript(source) {
 
 function removeServiceWorkerRegistration(htmlSource) {
   return htmlSource.replace(scriptPattern, (script) => {
-    const registersServiceWorker =
+    const isRegistrationScript =
+      /\bsrc=["'](?:\.\/)?js\/pwa-register\.js["']/i.test(script) ||
       script.includes("navigator.serviceWorker") && /\.register\s*\(/.test(script);
-    return registersServiceWorker ? "\n" : script;
+    return isRegistrationScript ? "\n" : script;
   });
 }
 
