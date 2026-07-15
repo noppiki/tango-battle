@@ -116,6 +116,27 @@ h1 .en {
   box-shadow: 2px 2px 0 var(--depth), 0 0 10px rgba(244, 92, 233, .45);
   text-shadow: none;
 }
+/* mute toggle — compact pixel chip pinned to the right of the title row */
+.mutebtn {
+  margin-left: auto;
+  font-size: 15px;
+  line-height: 1;
+  padding: 7px 9px;
+  border-radius: 0;
+  box-shadow: 2px 2px 0 var(--depth);
+  text-shadow: none;
+}
+.mutebtn:hover {
+  border-color: var(--c-score);
+  color: var(--c-score);
+  box-shadow: 2px 2px 0 var(--depth), 0 0 8px rgba(255, 210, 63, .45);
+}
+.mutebtn.muted {
+  border-color: var(--c-ng);
+  color: var(--c-ng);
+  filter: grayscale(1) brightness(1.15);
+}
+
 .sub { font-size: 12px; color: var(--sub); margin-top: 8px; line-height: 1.6; }
 
 /* ---------- cards / panels ---------- */

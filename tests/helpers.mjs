@@ -93,7 +93,19 @@ export function makeStubUi() {
 }
 
 export function makeStubAudio() {
-  return { speak() {}, sdSound() {}, cancel() {} };
+  let muted = false;
+  return {
+    speak() {},
+    sdSound() {},
+    cancel() {},
+    sfx() {},
+    setMuted(v) {
+      muted = !!v;
+    },
+    isMuted() {
+      return muted;
+    },
+  };
 }
 
 // Drives a battle created with makeStubUi() to completion. `chooser(it, s)`

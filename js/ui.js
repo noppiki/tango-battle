@@ -290,7 +290,10 @@ export function createUI({ srs, words, audio }) {
       const b = document.createElement('button');
       if (view.ink) b.innerHTML = inkify(opt);
       else b.textContent = opt;
-      b.onclick = () => B.answer(b, opt, view.it);
+      b.onclick = () => {
+        audio.sfx?.('tap');
+        B.answer(b, opt, view.it);
+      };
       box.appendChild(b);
     });
     hideMiracle();
@@ -362,6 +365,9 @@ export function createUI({ srs, words, audio }) {
   // ---------- result ----------
   function renderResult(B, view) {
     $('resultBox').innerHTML = view.headHtml;
+    // Level-up jingle, layered just after the win/lose sting. Detected from the
+    // rendered head so the battle engine stays sound-agnostic here.
+    if (audio.sfx && view.headHtml.includes('レベルアップ')) setTimeout(() => audio.sfx('levelup'), 500);
     let html = '';
     if (view.missed.length) {
       html += `<b style="font-size:15px;">📖 今日まちがえた単語(${view.missed.length}語)</b>

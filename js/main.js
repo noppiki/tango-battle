@@ -12,6 +12,9 @@ import { createBattle } from './battle.js';
 
 const $ = (id) => document.getElementById(id);
 
+// Persisted UI settings (mute), kept separate from the progress key.
+const SETTINGS_KEY = 'eiken-p2-settings-v1';
+
 async function loadWords() {
   // Single-file dist build injects window.WORDS inline; use it directly.
   if (Array.isArray(window.WORDS) && window.WORDS.length) return window.WORDS;
@@ -36,6 +39,7 @@ async function loadWords() {
 async function main() {
   const words = await loadWords();
   const storage = createStorage(PROGRESS_KEY);
+  const settingsStore = createStorage(SETTINGS_KEY);
   const srs = createSrs(storage);
   const audio = createAudio();
   const ui = createUI({ srs, words, audio });
@@ -57,6 +61,36 @@ async function main() {
     startGame();
   };
   $('btnHome').onclick = () => ui.gotoHome();
+
+  // --- mute toggle (persisted to the settings key, separate from progress) ---
+  const btnMute = $('btnMute');
+  function paintMute() {
+    if (!btnMute) return;
+    btnMute.textContent = audio.isMuted() ? '🔇' : '🔊';
+    btnMute.classList.toggle('muted', audio.isMuted());
+    btnMute.setAttribute('aria-pressed', String(audio.isMuted()));
+  }
+  try {
+    const raw = await settingsStore.get();
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (parsed && typeof parsed.muted === 'boolean') audio.setMuted(parsed.muted);
+    }
+  } catch (e) {
+    // corrupt/unreadable settings -> default to unmuted
+  }
+  paintMute();
+  if (btnMute) {
+    btnMute.onclick = async () => {
+      audio.setMuted(!audio.isMuted());
+      paintMute();
+      try {
+        await settingsStore.set(JSON.stringify({ muted: audio.isMuted() }));
+      } catch (e) {
+        // persistence unavailable (memory tier) -> mute still applies this session
+      }
+    };
+  }
 
   await srs.load();
   ui.renderStats();

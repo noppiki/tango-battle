@@ -194,6 +194,7 @@ export function createBattle({ rng = Math.random, ui, audio, srs, words }) {
       s.scores = [s.advStart[0], s.advStart[1]];
     }
     ui.gotoQuiz();
+    audio.sfx?.('start');
     ui.renderScorebar(controller);
     prepareAndRender();
     if (s.isBattle && (s.advStart[0] || s.advStart[1])) {
@@ -230,6 +231,7 @@ export function createBattle({ rng = Math.random, ui, audio, srs, words }) {
       } else {
         q.m = rng() < DYN_NORMAL_X2_P ? 2 : 1;
       }
+      if (q.m > 1) audio.sfx?.('mult');
     }
     const m = q.m || 1;
 
@@ -355,6 +357,7 @@ export function createBattle({ rng = Math.random, ui, audio, srs, words }) {
         if (!s.deck[s.qi].sd && s.streaks[si] % STREAK_BONUS_EVERY === 0) {
           pts += STREAK_BONUS;
           msg += ' & 3連続ボーナス +10点!🎉';
+          audio.sfx?.('coin');
         }
         if (s.isBattle && s.buffDash[si]) {
           pts += MUSH_BONUS;
@@ -379,6 +382,7 @@ export function createBattle({ rng = Math.random, ui, audio, srs, words }) {
       const r = srs.rec(pl, it[0]);
       srs.setRec(pl, it[0], (r ? r.b : 0) + 1);
       ui.setFb(msg, 'ok');
+      audio.sfx?.(s.miracleActive ? 'miracle_ok' : 'correct');
       if (gotBox) rollItem(si);
       advance();
     } else {
@@ -390,6 +394,7 @@ export function createBattle({ rng = Math.random, ui, audio, srs, words }) {
     s.answered = true;
     stopTimer();
     ui.hideMiracle();
+    audio.sfx?.(s.miracleActive ? 'miracle_ng' : 'wrong');
     const pl = curPlayer();
     const si = s.isBattle ? s.turn : 0;
     s.streaks[si] = 0;
@@ -453,9 +458,11 @@ export function createBattle({ rng = Math.random, ui, audio, srs, words }) {
         `⚡ スティール成功! ${PNAME[op]}チームが +${pts}点よこどり!${s.stealX > 1 ? '(ミラクル失敗ペナルティ!)' : ''}`,
         'ok',
       );
+      audio.sfx?.('steal_ok');
     } else {
       if (btn) ui.markNg(btn);
       ui.setFb(`スティール失敗… 正解は「${it[1]}」`, 'ng');
+      audio.sfx?.('steal_ng');
     }
     advance();
   }
@@ -473,12 +480,14 @@ export function createBattle({ rng = Math.random, ui, audio, srs, words }) {
   function rollItem(si) {
     s.rolling[si] = true;
     ui.renderItembar(controller);
+    audio.sfx?.('roll');
     const gap = s.RS[1 - si] - s.RS[si]; // further behind -> stronger items
     const pick = pickItem(gap, s.lastItem[si], rng);
     ui.animateItemRoll(si, () => {
       s.rolling[si] = false;
       s.items[si] = pick;
       s.lastItem[si] = pick;
+      audio.sfx?.('item_get');
       ui.renderItembar(controller);
     });
   }
@@ -515,6 +524,8 @@ export function createBattle({ rng = Math.random, ui, audio, srs, words }) {
       s.trap[op] = 'thunder';
       ui.setFb('⚡ サンダーを相手にしかけた…(相手の次の問題は5秒制限!)', 'ok');
     }
+    const itemSfx = { thunder: 'item_thunder', banana: 'item_banana', squid: 'item_ink' };
+    audio.sfx?.(itemSfx[k] || 'item_use');
     s.xpGain[i] += XP_ITEM_USE;
     ui.renderScorebar(controller);
   }
@@ -526,6 +537,7 @@ export function createBattle({ rng = Math.random, ui, audio, srs, words }) {
     s.miraclePts = s.scores[1 - s.turn] - s.scores[s.turn] + MIRACLE_BONUS;
     s.stealX = STEAL_MIRACLE_FAIL_X;
     ui.hideMiracle();
+    audio.sfx?.('miracle_charge');
     ui.setMultMiracle(s.miraclePts);
   }
 
@@ -606,6 +618,7 @@ export function createBattle({ rng = Math.random, ui, audio, srs, words }) {
         head += `<div class="d" style="color:var(--amber-dk);font-weight:700;margin-top:6px;">🎉 ${s.isBattle ? PNAME[i] + 'が' : ''}Lv.${newLv[i]}「${srs.title(newLv[i])}」にレベルアップ!</div>`;
     });
 
+    audio.sfx?.(s.isBattle && s.scores[0] < s.scores[1] ? 'lose' : 'win');
     ui.renderResult(controller, { headHtml: head, missed: [...s.missed.values()] });
   }
 
@@ -623,10 +636,18 @@ export function createBattle({ rng = Math.random, ui, audio, srs, words }) {
     const LIM = ms || TIMER_HANDICAP_MS;
     ui.timerReset();
     const t0 = Date.now();
+    let lastTick = null; // last whole-second announced (sfx only; no logic impact)
     s.timerId = setInterval(() => {
       const left = LIM - (Date.now() - t0);
       const pct = Math.max(0, (left / LIM) * 100);
       ui.timerSet(pct);
+      if (left > 0 && left <= 3000) {
+        const sec = Math.ceil(left / 1000);
+        if (sec !== lastTick) {
+          lastTick = sec;
+          audio.sfx?.('timer_tick');
+        }
+      }
       if (left <= 0) {
         stopTimer();
         if (!s.answered) handleWrong(null, s.deck[s.qi].it, '⏰ 時間切れ!');
