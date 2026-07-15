@@ -18,6 +18,31 @@ function itemImg(key) {
   return `<img class="iimg" src="${src}" alt="${alt}">`;
 }
 
+// Chrome sprites (img/ui/*.png) replacing bare emoji in the HUD, result banner
+// and labels. Paths are written as FULL string literals (not interpolated) so
+// bundle.mjs can inline each one to a data URI for the single-file build; a
+// template like `img/ui/${name}.png` would fragment the path and never inline.
+const UI_SPRITES = {
+  flame: 'img/ui/flame.png',
+  gift: 'img/ui/gift.png',
+  book: 'img/ui/book.png',
+  banner_win: 'img/ui/banner_win.png',
+  avatar_child: 'img/ui/avatar_child.png',
+  avatar_parent: 'img/ui/avatar_parent.png',
+};
+
+// Small inline chrome sprite. Decorative by default (empty alt); pass alt for
+// meaningful icons.
+function uiIc(name, cls = '', alt = '') {
+  return `<img class="uiic ${cls}" src="${UI_SPRITES[name]}" alt="${alt}">`;
+}
+
+// Per-player avatar sprite for the scorecards. side: 'child' | 'parent'.
+function avatarImg(side) {
+  const alt = side === 'child' ? 'こども' : 'おうち';
+  return `<img class="pav" src="${UI_SPRITES['avatar_' + side]}" alt="${alt}">`;
+}
+
 // createUI({ srs, words, audio }) -> ui adapter used by the battle engine + main.
 export function createUI({ srs, words, audio }) {
   let sel = { player: 'child', cat: 'w', mode: 'normal', handi: 'off', len: '16' };
@@ -170,10 +195,10 @@ export function createUI({ srs, words, audio }) {
       $('scorebar').innerHTML = `
     <div class="tugwrap">
       <div class="tuglabels">
-        <div class="pcard ${s.turn === 0 ? 'active' : ''}" id="pc0"><div class="nm">こどもチーム</div>
-          <span class="sc" id="sc0">${s.scores[0]}</span> <span class="st">${s.streaks[0] >= 2 ? s.streaks[0] + '連続中🔥' : ''}</span></div>
-        <div class="pcard ${s.turn === 1 ? 'active' : ''}" id="pc1"><div class="nm">おうちチーム</div>
-          <span class="sc" id="sc1">${s.scores[1]}</span> <span class="st">${s.streaks[1] >= 2 ? s.streaks[1] + '連続中🔥' : ''}</span></div>
+        <div class="pcard ${s.turn === 0 ? 'active' : ''}" id="pc0">${avatarImg('child')}<div class="pcbody"><div class="nm">こどもチーム</div>
+          <span class="sc" id="sc0">${s.scores[0]}</span> <span class="st">${s.streaks[0] >= 2 ? s.streaks[0] + '連続中' + uiIc('flame', 'ic-streak') : ''}</span></div></div>
+        <div class="pcard ${s.turn === 1 ? 'active' : ''}" id="pc1">${avatarImg('parent')}<div class="pcbody"><div class="nm">おうちチーム</div>
+          <span class="sc" id="sc1">${s.scores[1]}</span> <span class="st">${s.streaks[1] >= 2 ? s.streaks[1] + '連続中' + uiIc('flame', 'ic-streak') : ''}</span></div></div>
       </div>
       <div class="tugbar">
         <i class="tug-c" style="width:${childPct}%"></i>
@@ -183,8 +208,8 @@ export function createUI({ srs, words, audio }) {
     </div>`;
     } else {
       $('scorebar').innerHTML = `
-    <div class="pcard active" id="pc0"><div class="nm">${sel.player === 'child' ? 'こども' : 'おうち'} ─ ひとりで特訓</div>
-      <span class="sc" id="sc0">${s.scores[0]}</span> <span class="st">${s.streaks[0] >= 2 ? s.streaks[0] + '連続中🔥' : ''}</span></div>`;
+    <div class="pcard active" id="pc0">${avatarImg(sel.player === 'child' ? 'child' : 'parent')}<div class="pcbody"><div class="nm">${sel.player === 'child' ? 'こども' : 'おうち'} ─ ひとりで特訓</div>
+      <span class="sc" id="sc0">${s.scores[0]}</span> <span class="st">${s.streaks[0] >= 2 ? s.streaks[0] + '連続中' + uiIc('flame', 'ic-streak') : ''}</span></div></div>`;
     }
     (s.isBattle ? [0, 1] : [0]).forEach((i) => {
       const d = s.scores[i] - prev[i];
@@ -209,7 +234,7 @@ export function createUI({ srs, words, audio }) {
       const buffs = (s.buffDash[i] ? ' 🍬発動中' : '') + (s.buffStar[i] ? ' ✨発動中' : '');
       return `<div class="ichip ${i === s.turn ? 'on' : ''}" id="ichip${i}">
       <span class="iic">${s.rolling[i] ? itemImg(null) : itemImg(s.items[i] || null)}</span>
-      <span class="ids"><b>${B.PNAME[i]}</b> ${s.rolling[i] ? '🎁 ルーレット中…' : it ? it.nm + '「' + it.ds + '」' : 'アイテムなし'}${buffs}</span>
+      <span class="ids"><b>${B.PNAME[i]}</b> ${s.rolling[i] ? uiIc('gift', 'ic-inline') + ' ルーレット中…' : it ? it.nm + '「' + it.ds + '」' : 'アイテムなし'}${buffs}</span>
       ${canUse ? `<button data-use="${i}">つかう!</button>` : ''}
     </div>`;
     });
@@ -389,16 +414,23 @@ export function createUI({ srs, words, audio }) {
 
   // ---------- result ----------
   function renderResult(B, view) {
-    $('resultBox').innerHTML = view.headHtml;
+    // Celebratory result banner above the head line. This is a shared family
+    // screen (both players see it together), so a victory or a draw always shows
+    // the WIN banner — a lose banner would only sour the winner's celebration.
+    // banner_lose.png is precached for future single-player/perspective modes.
+    const banner = uiIc('banner_win', 'rbanner', '結果');
+    // Strip the legacy 🏆 emoji from the engine-supplied head — the banner now
+    // carries the victory motif (head string comes from battle.js, untouched here).
+    $('resultBox').innerHTML = banner + view.headHtml.replace(/🏆/g, '');
     // Level-up jingle, layered just after the win/lose sting. Detected from the
     // rendered head so the battle engine stays sound-agnostic here.
     if (audio.sfx && view.headHtml.includes('レベルアップ')) setTimeout(() => audio.sfx('levelup'), 500);
     let html = '';
     if (view.missed.length) {
-      html += `<b style="font-size:15px;">📖 今日まちがえた単語(${view.missed.length}語)</b>
+      html += `<b style="font-size:15px;">${uiIc('book', 'ic-inline')} 今日まちがえた単語(${view.missed.length}語)</b>
     <div class="note" style="margin:2px 0 6px;">次に遊ぶとき、この単語が優先して出てきます。声に出して読んでみよう。</div>`;
       view.missed.forEach((it) => {
-        html += `<div class="rvrow"><b>${it[0]}</b><span>${it[1]}</span><button class="sbtn" data-speak="${encodeURIComponent(it[0])}">🔊</button></div>`;
+        html += `<div class="rvrow"><b>${it[0]}</b><span>${it[1]}</span><button class="sbtn" data-speak="${encodeURIComponent(it[0])}"><img class="uiic ic-inline" src="img/ui/spk_on.png" alt="きく"></button></div>`;
       });
     } else {
       html += `<div style="text-align:center;color:var(--green-dk);font-weight:700;">⭐ 全問正解! 復習する単語はありません</div>`;

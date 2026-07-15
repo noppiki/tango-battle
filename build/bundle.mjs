@@ -32,26 +32,31 @@ function removeServiceWorkerRegistration(htmlSource) {
   });
 }
 
-const itemSpritePattern = /(?:\.\/)?img\/items\/([a-zA-Z0-9_-]+)\.png/g;
+// Matches any referenced PNG under img/ (items, ui, …) or icons/, tolerating a
+// leading ./ or ../ (CSS uses ../img/ui/…, JS/HTML use bare img/… or icons/…).
+// Group 1 is the clean project-relative path used to read the file from disk;
+// the full match (prefix included) is what gets replaced by the data URI.
+const assetPattern = /(?:\.\.?\/)*(img\/[\w-]+\/[\w-]+\.png|icons\/[\w-]+\.png)/g;
 
-// Inline every referenced img/items/*.png (in the bundled JS string paths and
-// any HTML) as a base64 data URI so the single-file build is fully offline.
-async function inlineItemSprites(source) {
-  const names = new Set();
-  for (const match of source.matchAll(itemSpritePattern)) {
-    names.add(match[1]);
+// Inline every referenced img/ + icons/ PNG (in the bundled JS string paths, the
+// inlined stylesheet and any HTML src/href) as a base64 data URI so the
+// single-file build is fully offline with no raw asset paths left behind.
+async function inlineAssets(source) {
+  const paths = new Set();
+  for (const match of source.matchAll(assetPattern)) {
+    paths.add(match[1]);
   }
-  if (names.size === 0) {
+  if (paths.size === 0) {
     return source;
   }
   const dataUris = {};
   await Promise.all(
-    [...names].map(async (name) => {
-      const buffer = await readFile(resolve(projectRoot, `img/items/${name}.png`));
-      dataUris[name] = `data:image/png;base64,${buffer.toString("base64")}`;
+    [...paths].map(async (relPath) => {
+      const buffer = await readFile(resolve(projectRoot, relPath));
+      dataUris[relPath] = `data:image/png;base64,${buffer.toString("base64")}`;
     })
   );
-  return source.replace(itemSpritePattern, (_match, name) => dataUris[name]);
+  return source.replace(assetPattern, (_match, relPath) => dataUris[relPath]);
 }
 
 async function inlineStylesheet(htmlSource) {
@@ -104,7 +109,7 @@ async function buildSingleFile() {
   const htmlWithBundle = removeServiceWorkerRegistration(htmlWithInlineStyles)
     .replace(manifestLinkPattern, "\n")
     .replace(moduleScriptPattern, scripts);
-  const outputHtml = await inlineItemSprites(htmlWithBundle);
+  const outputHtml = await inlineAssets(htmlWithBundle);
 
   await mkdir(dirname(outputPath), { recursive: true });
   await writeFile(outputPath, outputHtml, "utf8");

@@ -116,25 +116,51 @@ h1 .en {
   box-shadow: 2px 2px 0 var(--depth), 0 0 10px rgba(244, 92, 233, .45);
   text-shadow: none;
 }
-/* mute toggle — compact pixel chip pinned to the right of the title row */
+/* title emblem — the app icon locked up to the left of the wordmark */
+.emblem {
+  width: 46px;
+  height: 46px;
+  flex: 0 0 auto;
+  image-rendering: auto;      /* 192px source downscaled — smooth reads cleaner */
+  border: 2px solid var(--line-hi);
+  background: #0c1020;
+  box-shadow: 2px 2px 0 var(--depth), inset 0 0 0 1px #0006;
+}
+
+/* mute toggle — compact pixel chip pinned to the right of the title row.
+   The icon is an <img id="muteIcon"> swapped between spk_on/spk_off by main.js. */
 .mutebtn {
   margin-left: auto;
-  font-size: 15px;
-  line-height: 1;
-  padding: 7px 9px;
+  width: 42px;
+  height: 36px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   border-radius: 0;
+  background-color: var(--card2);
   box-shadow: 2px 2px 0 var(--depth);
-  text-shadow: none;
+}
+.mutebtn img {
+  width: 24px;
+  height: 24px;
+  vertical-align: middle;
 }
 .mutebtn:hover {
   border-color: var(--c-score);
-  color: var(--c-score);
   box-shadow: 2px 2px 0 var(--depth), 0 0 8px rgba(255, 210, 63, .45);
 }
 .mutebtn.muted {
   border-color: var(--c-ng);
-  color: var(--c-ng);
-  filter: grayscale(1) brightness(1.15);
+}
+
+/* small inline label icon (e.g. the "だれが遊ぶ?" prompt) */
+.fl-ic {
+  width: 15px;
+  height: 15px;
+  vertical-align: -2px;
+  margin-right: 5px;
+  image-rendering: auto;
 }
 
 .sub { font-size: 12px; color: var(--sub); margin-top: 8px; line-height: 1.6; }
@@ -276,6 +302,9 @@ label.fl {
 .pcard {
   position: relative;
   flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 9px;
   background: var(--panel);
   border: 2px solid var(--line);
   border-radius: 0;
@@ -283,7 +312,22 @@ label.fl {
   box-shadow: inset 0 2px 0 var(--bevel-lo), 3px 3px 0 var(--depth);
   transition: border-color .15s, box-shadow .15s;
 }
-.tuglabels .pcard:last-child { text-align: right; }
+.pcard .pcbody { flex: 1; min-width: 0; }
+/* parent card mirrors: avatar hugs the right, text stays right-aligned */
+.tuglabels .pcard:last-child { flex-direction: row-reverse; text-align: right; }
+
+/* player avatar chip inside a scorecard */
+.pav {
+  width: 40px;
+  height: 40px;
+  flex: 0 0 auto;
+  image-rendering: auto;      /* detailed source downscaled — keep it smooth */
+  border: 2px solid var(--line-hi);
+  background: #0c1020;
+  box-shadow: 2px 2px 0 var(--depth);
+}
+#pc0 .pav { border-color: var(--p-child-dk); box-shadow: 2px 2px 0 var(--depth), 0 0 8px rgba(63, 224, 239, .3); }
+#pc1 .pav { border-color: var(--p-parent-dk); box-shadow: 2px 2px 0 var(--depth), 0 0 8px rgba(244, 92, 233, .3); }
 
 .pcard .nm { font-size: 11px; color: var(--sub); font-weight: 700; letter-spacing: .02em; }
 .pcard .sc {
@@ -503,8 +547,30 @@ label.fl {
 .rvrow span { color: var(--sub); text-align: right; }
 .rvrow .sbtn { font-size: 12px; padding: 5px 10px; }
 
+/* ---------- inline chrome sprites (img/ui) ---------- */
+.uiic { image-rendering: auto; vertical-align: middle; }
+/* streak flame riding next to the "N連続中" count */
+.ic-streak {
+  width: 15px;
+  height: 15px;
+  vertical-align: -2px;
+  filter: drop-shadow(0 0 4px rgba(255, 154, 60, .6));
+}
+/* generic inline icon inside a label/line (gift roulette, review heading) */
+.ic-inline { width: 17px; height: 17px; vertical-align: -3px; }
+
 /* ---------- result / winner ---------- */
 .hidden { display: none !important; }
+/* victory banner crowning the result card */
+.rbanner {
+  display: block;
+  width: min(240px, 66%);
+  height: auto;
+  margin: 0 auto 10px;
+  image-rendering: auto;
+  filter: drop-shadow(3px 3px 0 var(--depth));
+  animation: arcadein .5s steps(5);
+}
 .winner { text-align: center; padding: 12px 0 6px; }
 .winner .t {
   font-family: var(--font-en);
@@ -827,7 +893,9 @@ body.in-quiz .sub { display: none; }
 body.in-quiz .scorebar { margin-top: 8px; padding: 6px 0 6px; gap: 5px; }
 body.in-quiz .tugwrap { gap: 5px; }
 body.in-quiz .tuglabels { gap: 8px; }
-body.in-quiz .pcard { padding: 5px 10px; }
+body.in-quiz .pcard { padding: 5px 10px; gap: 7px; }
+/* shrink the avatar so the card height is driven by the text, not the sprite */
+body.in-quiz .pav { width: 30px; height: 30px; }
 body.in-quiz .pcard .nm { font-size: 10px; }
 body.in-quiz .pcard .sc { font-size: 17px; line-height: 1.1; }
 body.in-quiz .pcard .st { font-size: 10px; }

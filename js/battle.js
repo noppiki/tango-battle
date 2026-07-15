@@ -609,7 +609,8 @@ export function createBattle({ rng = Math.random, ui, audio, srs, words }) {
       head += `<div class="d">🌱 けいけんち: こども +${s.xpGain[0]}XP / おうち +${s.xpGain[1]}XP</div>`;
       const li = s.scores[0] > s.scores[1] ? 1 : 0;
       const margin = Math.abs(s.scores[0] - s.scores[1]);
-      head += `<div class="d" style="margin-top:6px;">${PNAME[li]}チームも${s.corr[li]}問正解で着実にレベルアップ中!${margin <= 20 ? ' あと一歩だった…!!' : ''}</div>`;
+      if (s.corr[li] > 0)
+        head += `<div class="d" style="margin-top:6px;">${PNAME[li]}チームも${s.corr[li]}問正解で着実にレベルアップ中!${margin <= 20 ? ' あと一歩だった…!!' : ''}</div>`;
     } else {
       head = `<div class="t">おつかれさま!🎉</div><div class="d">スコア ${s.scores[0]}点 / 🌱 +${s.xpGain[0]}XP</div>`;
     }

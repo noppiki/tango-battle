@@ -66,7 +66,8 @@ async function main() {
   const btnMute = $('btnMute');
   function paintMute() {
     if (!btnMute) return;
-    btnMute.textContent = audio.isMuted() ? '🔇' : '🔊';
+    const icon = $('muteIcon');
+    if (icon) icon.src = audio.isMuted() ? 'img/ui/spk_off.png' : 'img/ui/spk_on.png';
     btnMute.classList.toggle('muted', audio.isMuted());
     btnMute.setAttribute('aria-pressed', String(audio.isMuted()));
   }

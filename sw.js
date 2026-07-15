@@ -1,4 +1,4 @@
-const CACHE_VERSION = "v4";
+const CACHE_VERSION = "v5";
 const CACHE_NAME = `tango-battle-shell-${CACHE_VERSION}`;
 
 const APP_SHELL = [
@@ -17,6 +17,18 @@ const APP_SHELL = [
   "./manifest.json",
   "./icons/icon-192.png",
   "./icons/icon-512.png",
+  "./icons/favicon.png",
+  "./icons/apple-touch-icon.png",
+  "./img/ui/avatar_child.png",
+  "./img/ui/avatar_parent.png",
+  "./img/ui/banner_win.png",
+  "./img/ui/banner_lose.png",
+  "./img/ui/book.png",
+  "./img/ui/flame.png",
+  "./img/ui/gift.png",
+  "./img/ui/question.png",
+  "./img/ui/spk_on.png",
+  "./img/ui/spk_off.png",
   "./img/items/mush.png",
   "./img/items/green.png",
   "./img/items/red.png",
