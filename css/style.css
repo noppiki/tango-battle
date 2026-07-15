@@ -439,6 +439,13 @@ label.fl {
   background: linear-gradient(180deg, #6ff09c, var(--c-ok));
   border-color: #b6ffd0 #1c6b40 #1c6b40 #b6ffd0;
   box-shadow: 3px 3px 0 var(--depth), 0 0 16px rgba(79, 232, 132, .65);
+  animation: okburst .5s steps(5);
+}
+/* pixel burst on the correct choice: an expanding blocky ring + a quick pop */
+@keyframes okburst {
+  0% { transform: scale(1); box-shadow: 3px 3px 0 var(--depth), 0 0 0 0 rgba(79, 232, 132, .95); }
+  30% { transform: scale(1.05); }
+  100% { transform: scale(1); box-shadow: 3px 3px 0 var(--depth), 0 0 0 20px rgba(79, 232, 132, 0), 0 0 16px rgba(79, 232, 132, .65); }
 }
 .choices button.ng {
   color: #fff;
@@ -447,6 +454,12 @@ label.fl {
   box-shadow: 3px 3px 0 var(--depth), 0 0 16px rgba(255, 77, 99, .6);
 }
 .choices button:disabled { cursor: default; }
+/* after an answer resolves, the untouched options dim clearly (never touching
+   textContent — the answer invariant reads button.textContent). */
+.choices button:disabled:not(.ok):not(.ng):not(.stealable) {
+  opacity: .38;
+  filter: saturate(.35) brightness(.72);
+}
 .choices button.stealable {
   border-color: var(--c-score);
   box-shadow: 3px 3px 0 var(--depth), 0 0 0 2px var(--amber-bg), 0 0 14px rgba(255, 210, 63, .55);
@@ -574,14 +587,28 @@ label.fl {
   z-index: 5;
   animation: popup 1.15s steps(8) forwards;
 }
-.scorepop.plus { color: var(--c-ok); text-shadow: 2px 2px 0 #07120b, 0 0 12px rgba(79, 232, 132, .6); }
+.scorepop.plus {
+  color: var(--c-ok);
+  text-shadow: 2px 2px 0 #07120b, 0 0 12px rgba(79, 232, 132, .6);
+  /* gains get an exaggerated multi-stage bounce; losses keep the plain float */
+  animation: popupbounce 1.15s steps(9) forwards;
+}
 .scorepop.minus { color: var(--c-ng); text-shadow: 2px 2px 0 #14060a, 0 0 12px rgba(255, 77, 99, .6); }
 .scorepop.big { font-size: 20px; }
+.scorepop.plus.big { font-size: 26px; }
 @keyframes popup {
   0% { transform: translateY(8px) scale(.5); opacity: 0; }
   14% { transform: translateY(0) scale(1.3); opacity: 1; }
   30% { transform: scale(1); }
   100% { transform: translateY(-42px) scale(1); opacity: 0; }
+}
+@keyframes popupbounce {
+  0% { transform: translateY(10px) scale(.3); opacity: 0; }
+  12% { transform: translateY(-6px) scale(1.7); opacity: 1; }
+  24% { transform: translateY(3px) scale(.85); }
+  36% { transform: translateY(-3px) scale(1.28); }
+  48% { transform: translateY(0) scale(1); }
+  100% { transform: translateY(-50px) scale(1); opacity: 0; }
 }
 
 .pcard.gain { animation: cardgain .55s steps(4); }
@@ -679,7 +706,17 @@ label.fl {
   66% { border-color: var(--p-parent); box-shadow: 3px 3px 0 var(--depth), 0 0 14px rgba(244, 92, 233, .4); }
   100% { border-color: var(--c-score); box-shadow: 3px 3px 0 var(--depth), 0 0 14px rgba(255, 210, 63, .4); }
 }
-.miraclebox .mnote { font-size: 11px; color: var(--sub); }
+.miraclebox { overflow: visible; }
+/* full penalty text must wrap and never clip to an ellipsis */
+.miraclebox .mnote {
+  display: block;
+  font-size: 11px;
+  color: var(--sub);
+  white-space: normal;
+  overflow: visible;
+  overflow-wrap: anywhere;
+  line-height: 1.55;
+}
 .miraclebox button {
   font-family: var(--font-en);
   font-size: 10px;
@@ -761,6 +798,61 @@ body.sdmode::after {
   background-image: repeating-linear-gradient(0deg, rgba(255, 40, 60, .0) 0 3px, rgba(255, 40, 60, .5) 3px 5px);
   opacity: .1;
 }
+
+/* wrong-answer punctuation: the whole word card gives a small horizontal shake */
+.wordcard.shake { animation: wcshake .34s steps(4); }
+@keyframes wcshake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-4px); }
+  50% { transform: translateX(4px); }
+  75% { transform: translateX(-2px); }
+}
+
+/* ============================================================================
+   IN-QUIZ COMPACT HUD
+   During a battle (body.in-quiz) the page chrome (title + description) is hidden
+   and the score/tug/item band is tightened. Goal: on a 375x812 phone the HUD +
+   word card + all four choices fit the first viewport without scrolling.
+   Rough vertical budget (375x812): wrap pad 22 + HUD ~120 + qmeta ~22 +
+   wordcard ~120 + 4 choices ~208 + feedback ~24 + controls ~48 = ~584px,
+   leaving comfortable headroom under 812.
+   ========================================================================== */
+body.in-quiz h1,
+body.in-quiz .sub { display: none; }
+
+/* streak sits on its own small line under the score, never over the number */
+.pcard .st { display: block; margin-top: 1px; }
+
+/* --- tighten the score/tug band --- */
+body.in-quiz .scorebar { margin-top: 8px; padding: 6px 0 6px; gap: 5px; }
+body.in-quiz .tugwrap { gap: 5px; }
+body.in-quiz .tuglabels { gap: 8px; }
+body.in-quiz .pcard { padding: 5px 10px; }
+body.in-quiz .pcard .nm { font-size: 10px; }
+body.in-quiz .pcard .sc { font-size: 17px; line-height: 1.1; }
+body.in-quiz .pcard .st { font-size: 10px; }
+body.in-quiz .pcard.active::before { top: 5px; }
+body.in-quiz .tugbar { height: 16px; }
+
+/* --- tighten the item inventory row --- */
+body.in-quiz .itembar { margin-top: 6px; gap: 8px; }
+body.in-quiz .ichip { min-height: 0; padding: 5px 8px; gap: 6px; font-size: 11px; line-height: 1.25; }
+body.in-quiz .ichip .iic { padding: 1px; }
+body.in-quiz .ichip .iic .iimg { width: 26px; height: 26px; }
+body.in-quiz .ichip button { font-size: 7px; padding: 5px 7px; }
+
+/* --- tighten the question area so the choices ride up --- */
+body.in-quiz .qmeta { margin-top: 8px; }
+body.in-quiz .wordcard { padding: 14px 16px 12px; margin-top: 6px; }
+body.in-quiz .word { font-size: clamp(16px, 5.6vw, 24px); line-height: 1.3; }
+body.in-quiz .word.small { font-size: clamp(13px, 4.4vw, 18px); }
+body.in-quiz .pos { margin-top: 5px; }
+body.in-quiz .boxdots { margin-top: 7px; }
+body.in-quiz .spk { margin-top: 8px; padding: 6px 14px; }
+body.in-quiz .choices { margin-top: 10px; gap: 8px; }
+body.in-quiz .choices button { padding: 11px 14px; font-size: 14px; }
+body.in-quiz .fb { min-height: 22px; margin-top: 8px; font-size: 13px; }
+body.in-quiz .ctr { margin-top: 8px; }
 
 /* ---------- responsive ---------- */
 @media (max-width: 480px) {

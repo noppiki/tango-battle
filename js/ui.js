@@ -103,13 +103,18 @@ export function createUI({ srs, words, audio }) {
     $('scr-home').classList.add('hidden');
     $('scr-result').classList.add('hidden');
     $('scr-quiz').classList.remove('hidden');
+    // Compact in-battle chrome: CSS hides the title/description and tightens the
+    // HUD so the word card + 4 choices land in the first viewport on a phone.
+    document.body.classList.add('in-quiz');
   }
   function gotoResult() {
     $('scr-quiz').classList.add('hidden');
     $('scr-result').classList.remove('hidden');
+    document.body.classList.remove('in-quiz');
   }
   function gotoHome() {
     clearSdMode();
+    document.body.classList.remove('in-quiz');
     $('scr-quiz').classList.add('hidden');
     $('scr-result').classList.add('hidden');
     $('scr-home').classList.remove('hidden');
@@ -156,8 +161,11 @@ export function createUI({ srs, words, audio }) {
     if (s.isBattle) {
       // Tug-of-war: the rope boundary sits at the raw-score ratio (cyan grows
       // from the left, magenta from the right). Falls back to 50/50 at 0-0.
+      // The visible boundary is clamped to 15%-85% so a blowout never collapses
+      // the losing side's rope to a sliver; the underlying ratio is unchanged.
       const total = s.scores[0] + s.scores[1];
-      const childPct = total > 0 ? (s.scores[0] / total) * 100 : 50;
+      const rawPct = total > 0 ? (s.scores[0] / total) * 100 : 50;
+      const childPct = Math.max(15, Math.min(85, rawPct));
       const parentPct = 100 - childPct;
       $('scorebar').innerHTML = `
     <div class="tugwrap">
@@ -320,6 +328,15 @@ export function createUI({ srs, words, audio }) {
   function markWrong(btn) {
     btn.classList.add('ng');
     btn.disabled = true;
+    // brief horizontal shake on the word card to punctuate a miss (retro feel);
+    // reduced-motion neutralizes the animation via the global media query.
+    const wc = document.querySelector('.wordcard');
+    if (wc) {
+      wc.classList.remove('shake');
+      void wc.offsetWidth; // reflow so the animation restarts on repeated misses
+      wc.classList.add('shake');
+      setTimeout(() => wc.classList.remove('shake'), 400);
+    }
   }
   function markNg(btn) {
     btn.classList.add('ng');
