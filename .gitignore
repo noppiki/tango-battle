@@ -1,3 +1,4 @@
 _tasks/
 dist/
 node_modules/
+.design-mock-pixel.png

@@ -7,6 +7,7 @@ import { build } from "esbuild";
 const projectRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const entryPath = resolve(projectRoot, "js/main.js");
 const htmlPath = resolve(projectRoot, "index.html");
+const stylesheetPath = resolve(projectRoot, "css/style.css");
 const wordsPath = resolve(projectRoot, "data/words.json");
 const outputPath = resolve(projectRoot, "dist/eiken_pre2_game.html");
 
@@ -14,6 +15,8 @@ const moduleScriptPattern =
   /<script\s+type=["']module["']\s+src=["'](?:\.\/)?js\/main\.js["']\s*><\/script>/i;
 const manifestLinkPattern =
   /\s*<link\b(?=[^>]*\brel=["'][^"']*\bmanifest\b[^"']*["'])[^>]*>\s*/gi;
+const stylesheetLinkPattern =
+  /<link\b(?=[^>]*\brel=["'][^"']*\bstylesheet\b[^"']*["'])(?=[^>]*\bhref=["'](?:\.\/)?css\/style\.css["'])[^>]*>/gi;
 const scriptPattern = /\s*<script\b[^>]*>[\s\S]*?<\/script>\s*/gi;
 
 function inlineScript(source) {
@@ -27,6 +30,18 @@ function removeServiceWorkerRegistration(htmlSource) {
       script.includes("navigator.serviceWorker") && /\.register\s*\(/.test(script);
     return isRegistrationScript ? "\n" : script;
   });
+}
+
+async function inlineStylesheet(htmlSource) {
+  if (!stylesheetLinkPattern.test(htmlSource)) {
+    return htmlSource;
+  }
+
+  const stylesheet = await readFile(stylesheetPath, "utf8");
+  return htmlSource.replace(
+    stylesheetLinkPattern,
+    () => `<style>\n${stylesheet}\n</style>`
+  );
 }
 
 async function bundleApplication() {
@@ -63,7 +78,8 @@ async function buildSingleFile() {
     throw new Error("Could not find the js/main.js module script in index.html.");
   }
 
-  const outputHtml = removeServiceWorkerRegistration(htmlSource)
+  const htmlWithInlineStyles = await inlineStylesheet(htmlSource);
+  const outputHtml = removeServiceWorkerRegistration(htmlWithInlineStyles)
     .replace(manifestLinkPattern, "\n")
     .replace(moduleScriptPattern, scripts);
 

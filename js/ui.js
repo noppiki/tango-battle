@@ -146,11 +146,25 @@ export function createUI({ srs, words, audio }) {
     const s = B.s;
     const prev = [...s.lastShown];
     if (s.isBattle) {
+      // Tug-of-war: the rope boundary sits at the raw-score ratio (cyan grows
+      // from the left, magenta from the right). Falls back to 50/50 at 0-0.
+      const total = s.scores[0] + s.scores[1];
+      const childPct = total > 0 ? (s.scores[0] / total) * 100 : 50;
+      const parentPct = 100 - childPct;
       $('scorebar').innerHTML = `
-    <div class="pcard ${s.turn === 0 ? 'active' : ''}" id="pc0"><div class="nm">こどもチーム</div>
-      <span class="sc" id="sc0">${s.scores[0]}</span> <span class="st">${s.streaks[0] >= 2 ? s.streaks[0] + '連続中🔥' : ''}</span></div>
-    <div class="pcard ${s.turn === 1 ? 'active' : ''}" id="pc1"><div class="nm">おうちチーム</div>
-      <span class="sc" id="sc1">${s.scores[1]}</span> <span class="st">${s.streaks[1] >= 2 ? s.streaks[1] + '連続中🔥' : ''}</span></div>`;
+    <div class="tugwrap">
+      <div class="tuglabels">
+        <div class="pcard ${s.turn === 0 ? 'active' : ''}" id="pc0"><div class="nm">こどもチーム</div>
+          <span class="sc" id="sc0">${s.scores[0]}</span> <span class="st">${s.streaks[0] >= 2 ? s.streaks[0] + '連続中🔥' : ''}</span></div>
+        <div class="pcard ${s.turn === 1 ? 'active' : ''}" id="pc1"><div class="nm">おうちチーム</div>
+          <span class="sc" id="sc1">${s.scores[1]}</span> <span class="st">${s.streaks[1] >= 2 ? s.streaks[1] + '連続中🔥' : ''}</span></div>
+      </div>
+      <div class="tugbar">
+        <i class="tug-c" style="width:${childPct}%"></i>
+        <i class="tug-p" style="width:${parentPct}%"></i>
+        <span class="tug-knot" style="left:${childPct}%"></span>
+      </div>
+    </div>`;
     } else {
       $('scorebar').innerHTML = `
     <div class="pcard active" id="pc0"><div class="nm">${sel.player === 'child' ? 'こども' : 'おうち'} ─ ひとりで特訓</div>
