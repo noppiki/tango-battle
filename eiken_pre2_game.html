@@ -1,0 +1,993 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>英検準2級 単語バトル</title>
+<link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;500;700&family=Outfit:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#FAF9F4; --card:#FFFFFF; --ink:#26323C; --sub:#6B7A85; --line:#E4E2D8;
+  --green:#149A6B; --green-bg:#E3F5EC; --green-dk:#0A6B49;
+  --coral:#E15A3C; --coral-bg:#FCEAE4; --coral-dk:#9C3A22;
+  --blue:#2E7CC4; --blue-bg:#E7F1FA; --blue-dk:#1A517F;
+  --amber:#F0A31F; --amber-bg:#FCF1D8; --amber-dk:#8A5B08;
+  --radius:14px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--ink);font-family:"M PLUS Rounded 1c",sans-serif;line-height:1.6;min-height:100vh;}
+.wrap{max-width:640px;margin:0 auto;padding:20px 16px 48px;}
+h1{font-size:20px;font-weight:700;display:flex;align-items:center;gap:8px;}
+h1 .en{font-family:"Outfit",sans-serif;font-size:13px;font-weight:600;color:var(--green);background:var(--green-bg);padding:2px 10px;border-radius:99px;}
+.sub{font-size:13px;color:var(--sub);margin-top:2px;}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:18px;margin-top:14px;}
+button{font-family:inherit;font-size:15px;font-weight:500;border:1.5px solid var(--line);background:var(--card);color:var(--ink);border-radius:12px;padding:10px 16px;cursor:pointer;transition:transform .06s,background .15s,border-color .15s;}
+button:hover{border-color:var(--ink);}
+button:active{transform:scale(.97);}
+button.primary{background:var(--green);border-color:var(--green);color:#fff;font-weight:700;}
+button.primary:hover{background:var(--green-dk);border-color:var(--green-dk);}
+.seg{display:flex;gap:8px;flex-wrap:wrap;}
+.seg button{flex:1;min-width:100px;}
+.seg button.on{background:var(--ink);border-color:var(--ink);color:#fff;}
+label.fl{display:block;font-size:13px;font-weight:700;color:var(--sub);margin:14px 0 6px;}
+.statgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:10px;}
+.stat{background:var(--bg);border-radius:10px;padding:8px 6px;text-align:center;}
+.stat b{display:block;font-size:20px;font-weight:700;}
+.stat span{font-size:11px;color:var(--sub);}
+.pbar{height:8px;background:var(--line);border-radius:99px;overflow:hidden;margin-top:10px;}
+.pbar i{display:block;height:100%;background:var(--green);border-radius:99px;transition:width .4s;}
+.scorebar{display:flex;gap:10px;margin-top:14px;}
+.pcard{flex:1;border-radius:var(--radius);padding:10px 14px;border:2px solid transparent;background:var(--card);border-color:var(--line);transition:all .2s;}
+.pcard.active{border-color:var(--green);background:var(--green-bg);}
+.pcard .nm{font-size:12px;color:var(--sub);font-weight:700;}
+.pcard.active .nm{color:var(--green-dk);}
+.pcard .sc{font-size:24px;font-weight:700;font-family:"Outfit",sans-serif;}
+.pcard .st{font-size:11px;color:var(--amber-dk);font-weight:700;}
+.qmeta{display:flex;justify-content:space-between;align-items:center;margin-top:16px;font-size:13px;color:var(--sub);}
+.qmeta .badge{background:var(--blue-bg);color:var(--blue-dk);font-weight:700;padding:1px 10px;border-radius:99px;font-size:12px;}
+.qmeta .badge.re{background:var(--amber-bg);color:var(--amber-dk);}
+.wordcard{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:26px 18px 18px;text-align:center;margin-top:8px;}
+.word{font-family:"Outfit",sans-serif;font-size:36px;font-weight:700;letter-spacing:.01em;line-height:1.2;}
+.word.small{font-size:26px;}
+.pos{font-size:12px;color:var(--sub);margin-top:4px;}
+.boxdots{margin-top:10px;font-size:0;}
+.boxdots i{display:inline-block;width:9px;height:9px;border-radius:99px;background:var(--line);margin:0 3px;}
+.boxdots i.f{background:var(--green);}
+.spk{margin-top:12px;font-size:14px;padding:8px 18px;border-radius:99px;}
+.choices{display:grid;gap:10px;margin-top:14px;}
+.choices button{text-align:left;font-size:16px;padding:13px 16px;}
+.choices button.ok{background:var(--green-bg);border-color:var(--green);color:var(--green-dk);font-weight:700;}
+.choices button.ng{background:var(--coral-bg);border-color:var(--coral);color:var(--coral-dk);font-weight:700;}
+.choices button:disabled{cursor:default;}
+.fb{min-height:30px;text-align:center;font-size:15px;font-weight:700;margin-top:12px;}
+.fb.ok{color:var(--green-dk);}
+.fb.ng{color:var(--coral-dk);}
+.ctr{display:flex;justify-content:center;gap:10px;margin-top:10px;}
+.rvrow{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:9px 4px;border-bottom:1px solid var(--line);font-size:14px;}
+.rvrow b{font-family:"Outfit",sans-serif;font-weight:600;}
+.rvrow span{color:var(--sub);text-align:right;}
+.rvrow .sbtn{font-size:12px;padding:3px 10px;border-radius:99px;flex-shrink:0;}
+.hidden{display:none;}
+.winner{text-align:center;padding:8px 0 4px;}
+.winner .t{font-size:22px;font-weight:700;}
+.winner .d{font-size:14px;color:var(--sub);}
+.note{font-size:12px;color:var(--sub);margin-top:10px;}
+.multbadge{display:inline-block;margin-top:10px;font-size:13px;font-weight:700;padding:3px 16px;border-radius:99px;background:var(--amber-bg);color:var(--amber-dk);animation:pulse 1.1s infinite;}
+.multbadge.final{background:var(--coral-bg);color:var(--coral-dk);}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.07)}}
+.timerwrap{height:10px;background:var(--line);border-radius:99px;overflow:hidden;margin-top:14px;}
+.timerwrap i{display:block;height:100%;width:100%;background:var(--blue);border-radius:99px;}
+.timerwrap i.low{background:var(--coral);}
+.stealbox{background:var(--amber-bg);border:2px dashed var(--amber);border-radius:var(--radius);padding:10px 14px;margin-top:12px;text-align:center;font-weight:700;color:var(--amber-dk);animation:pulse 1.1s infinite;}
+.stealbox button{margin-top:6px;font-size:13px;padding:5px 16px;border-radius:99px;background:#fff;}
+.choices button.stealable{border-color:var(--amber);box-shadow:0 0 0 2px var(--amber-bg);}
+.choices .ink{background:#232B36;color:transparent;border-radius:7px;padding:0 1px;}
+.choices.deink .ink{background:transparent;color:inherit;transition:background .5s ease,color .5s ease;}
+.scorebar{position:sticky;top:0;z-index:50;background:var(--bg);padding:8px 0 6px;box-shadow:0 6px 12px -8px rgba(38,50,60,.18);}
+.pcard{position:relative;}
+.scorepop{position:absolute;top:-8px;font-family:"Outfit",sans-serif;font-weight:700;font-size:20px;pointer-events:none;z-index:5;animation:popup 1.15s ease-out forwards;}
+.scorepop.plus{color:var(--green-dk);text-shadow:0 0 12px rgba(20,154,107,.35);}
+.scorepop.minus{color:var(--coral-dk);text-shadow:0 0 12px rgba(225,90,60,.35);}
+.scorepop.big{font-size:32px;}
+@keyframes popup{0%{transform:translateY(8px) scale(.5);opacity:0}14%{transform:translateY(0) scale(1.35);opacity:1}30%{transform:scale(1)}100%{transform:translateY(-40px) scale(1);opacity:0}}
+.pcard.gain{animation:cardgain .55s ease-out;}
+@keyframes cardgain{0%{box-shadow:0 0 0 0 rgba(20,154,107,.55)}100%{box-shadow:0 0 0 16px rgba(20,154,107,0)}}
+.pcard.loss{animation:cardloss .5s ease-out;}
+@keyframes cardloss{0%,100%{transform:translateX(0)}15%{transform:translateX(-6px);box-shadow:0 0 0 4px var(--coral-bg)}35%{transform:translateX(6px)}55%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+.fxscore{position:absolute;left:50%;top:38%;transform:translateX(-50%);font-family:"M PLUS Rounded 1c",sans-serif;font-weight:700;font-size:30px;white-space:nowrap;animation:fxslam 1.5s cubic-bezier(.2,1.3,.4,1) forwards;text-shadow:0 2px 0 #fff,0 4px 14px rgba(38,50,60,.25);}
+.fxscore.plus{color:var(--green-dk);}
+.fxscore.minus{color:var(--coral-dk);}
+.fxscore.big{font-size:44px;}
+@keyframes fxslam{0%{transform:translateX(-50%) scale(2.4);opacity:0}12%{transform:translateX(-50%) scale(1);opacity:1}55%{transform:translateX(-50%) translateY(0);opacity:1}100%{transform:translateX(-50%) translateY(-70px);opacity:0}}
+.itembar{display:flex;gap:10px;margin-top:10px;}
+.ichip{flex:1;display:flex;align-items:center;gap:7px;background:var(--card);border:1.5px dashed var(--line);border-radius:12px;padding:6px 10px;font-size:12px;color:var(--sub);min-height:40px;}
+.ichip.on{border-color:var(--amber);background:var(--amber-bg);}
+.ichip .iic{font-size:20px;line-height:1;}
+.ichip .ids{flex:1;line-height:1.3;}
+.ichip button{font-size:12px;padding:4px 14px;border-radius:99px;background:var(--amber);border-color:var(--amber);color:#fff;font-weight:700;animation:pulse 1.1s infinite;}
+.miraclebox{background:linear-gradient(135deg,var(--amber-bg),var(--coral-bg));border:2px solid var(--amber);border-radius:var(--radius);padding:12px 14px;margin-top:12px;text-align:center;font-size:14px;}
+.miraclebox .mnote{font-size:12px;color:var(--sub);}
+.miraclebox button{margin-top:8px;font-weight:700;background:var(--amber);border-color:var(--amber);color:#fff;font-size:15px;padding:9px 26px;animation:pulse 1.1s infinite;}
+#sdfx{position:fixed;inset:0;z-index:99;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at 50% 40%,#3a0d0d,#120404 75%);}
+#sdfx.hidden{display:none;}
+.sdflash{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none;animation:sdflash 1.3s .05s;}
+@keyframes sdflash{0%{opacity:.95}7%{opacity:0}11%{opacity:.55}18%{opacity:0}26%{opacity:.25}32%{opacity:0}100%{opacity:0}}
+.sdinner{text-align:center;color:#fff;animation:sdslam .55s cubic-bezier(.2,1.5,.35,1),sdquake .07s 10 alternate .6s;}
+@keyframes sdslam{0%{transform:scale(3.2);opacity:0}55%{transform:scale(.93);opacity:1}100%{transform:scale(1)}}
+@keyframes sdquake{from{transform:translate(-3px,1px)}to{transform:translate(3px,-1px)}}
+.sdround{font-family:"Outfit",sans-serif;font-size:17px;font-weight:600;letter-spacing:.35em;color:#F0A31F;}
+.sdtitle{font-family:"Outfit",sans-serif;font-size:62px;font-weight:700;line-height:.95;letter-spacing:.03em;color:#FF4D4D;text-shadow:0 0 24px rgba(255,77,77,.65),0 0 60px rgba(255,77,77,.35);margin-top:8px;}
+.sdjp{margin-top:16px;font-size:15px;color:#ffd6d6;letter-spacing:.1em;animation:sdblink 1s infinite .7s;}
+@keyframes sdblink{0%,100%{opacity:1}50%{opacity:.35}}
+body.sdmode .wordcard{border-color:var(--coral);animation:sdpulse 1.1s infinite;}
+@keyframes sdpulse{0%,100%{box-shadow:0 0 0 3px var(--coral-bg)}50%{box-shadow:0 0 0 8px var(--coral-bg)}}
+body.sdmode .qmeta .badge.re{background:var(--coral-bg);color:var(--coral-dk);}
+@media(max-width:480px){.sdtitle{font-size:44px;}}
+@media(max-width:480px){.statgrid{grid-template-columns:repeat(2,1fr);}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>単語バトル <span class="en">EIKEN Pre-2</span></h1>
+  <div class="sub">まちがえた単語は少しあとにもう一回出る「くり返し方式」。何日かあけて遊ぶと、忘れかけた単語から優先して出題されます。</div>
+
+  <div id="scr-home">
+    <div class="card">
+      <label class="fl">だれが遊ぶ?</label>
+      <div class="seg" id="selPlayer">
+        <button data-v="child" class="on">こども</button>
+        <button data-v="parent">おうち</button>
+        <button data-v="battle">親子で対戦</button>
+      </div>
+      <label class="fl">出題はんい</label>
+      <div class="seg" id="selCat">
+        <button data-v="w" class="on">単語</button>
+        <button data-v="j">熟語</button>
+        <button data-v="all">ぜんぶ</button>
+      </div>
+      <label class="fl">モード</label>
+      <div class="seg" id="selMode">
+        <button data-v="normal" class="on">ふつう(おすすめ)</button>
+        <button data-v="weak">にがて特訓</button>
+      </div>
+      <label class="fl">1ゲームの長さ</label>
+      <div class="seg" id="selLen">
+        <button data-v="10">クイック 10問</button>
+        <button data-v="16" class="on">たっぷり 16問</button>
+        <button data-v="20">ガッツリ 20問</button>
+      </div>
+      <div id="handiBlock">
+        <label class="fl">ハンデ(親子で対戦のとき)</label>
+        <div class="seg" id="selHandi">
+          <button data-v="off" class="on">なし(ガチ勝負)</button>
+          <button data-v="on">おうちに8秒制限⏰</button>
+        </div>
+      </div>
+      <div class="ctr" style="margin-top:20px;">
+        <button class="primary" id="btnStart" style="font-size:17px;padding:12px 40px;">スタート</button>
+      </div>
+      <div class="note" id="homeNote"></div>
+    </div>
+    <div class="card" id="statsCard"></div>
+  </div>
+
+  <div id="scr-quiz" class="hidden">
+    <div class="scorebar" id="scorebar"></div>
+    <div class="itembar" id="itembar" style="display:none;"></div>
+    <div class="qmeta">
+      <span class="badge" id="qbadge">単語</span>
+      <span id="qcount"></span>
+    </div>
+    <div class="wordcard">
+      <div class="word" id="qword">…</div>
+      <div class="pos" id="qpos"></div>
+      <div id="qmult"></div>
+      <div class="boxdots" id="qdots"></div>
+      <button class="spk" id="btnSpeak">🔊 もう一回きく</button>
+      <div class="timerwrap hidden" id="timerwrap"><i id="timerbar"></i></div>
+    </div>
+    <div class="miraclebox hidden" id="miraclebox"></div>
+    <div class="choices" id="choices"></div>
+    <div class="stealbox hidden" id="stealbox"></div>
+    <div class="fb" id="fb"></div>
+    <div class="ctr">
+      <button id="btnNext" class="primary hidden">つぎへ →</button>
+      <button id="btnQuit">やめる</button>
+    </div>
+  </div>
+
+  <div id="scr-result" class="hidden">
+    <div class="card"><div class="winner" id="resultBox"></div></div>
+    <div class="card" id="reviewBox"></div>
+    <div class="ctr" style="margin-top:16px;">
+      <button class="primary" id="btnAgain">もう一回あそぶ</button>
+      <button id="btnHome">ホームへ</button>
+    </div>
+  </div>
+</div>
+<div id="fxlayer" style="position:fixed;inset:0;pointer-events:none;z-index:80;overflow:hidden;"></div>
+<div id="sdfx" class="hidden">
+  <div class="sdflash"></div>
+  <div class="sdinner">
+    <div class="sdround" id="sdroundlbl">ROUND 1</div>
+    <div class="sdtitle">SUDDEN<br>DEATH</div>
+    <div class="sdjp">─ 決着がつくまで終わらない ─</div>
+  </div>
+</div>
+<script>
+// pos: v=動詞 n=名詞 a=形容詞 d=副詞など j=熟語
+const W=[
+["accept","受け入れる","v"],["achieve","達成する","v"],["add","加える","v"],["allow","許可する","v"],["announce","発表する","v"],
+["apologize","あやまる","v"],["appear","現れる","v"],["apply","申しこむ・応募する","v"],["argue","言い争う","v"],["arrange","手配する・整える","v"],
+["arrive","到着する","v"],["attend","出席する","v"],["attract","引きつける","v"],["avoid","避ける","v"],["behave","ふるまう","v"],
+["believe","信じる","v"],["belong","所属する","v"],["borrow","借りる","v"],["bother","なやませる・じゃまする","v"],["burn","燃える・燃やす","v"],
+["cancel","取り消す","v"],["cause","引き起こす","v"],["celebrate","祝う","v"],["charge","請求する・充電する","v"],["chase","追いかける","v"],
+["choose","選ぶ","v"],["collect","集める","v"],["communicate","気持ちを伝え合う","v"],["compare","比べる","v"],["compete","競争する","v"],
+["complain","不満を言う","v"],["complete","完成させる","v"],["connect","つなぐ","v"],["continue","続ける","v"],["control","管理する・コントロールする","v"],
+["cover","おおう","v"],["create","つくり出す","v"],["cross","横切る・わたる","v"],["damage","傷つける","v"],["decide","決める","v"],
+["decorate","かざる","v"],["decrease","減る・減らす","v"],["deliver","配達する","v"],["describe","説明する・描写する","v"],["design","設計する","v"],
+["destroy","こわす","v"],["develop","発達させる・開発する","v"],["disappear","消える","v"],["discover","発見する","v"],["discuss","話し合う","v"],
+["divide","分ける","v"],["earn","かせぐ","v"],["encourage","はげます","v"],["enter","入る","v"],["escape","にげる","v"],
+["exchange","交換する","v"],["expect","予想する・期待する","v"],["explain","説明する","v"],["express","表現する","v"],["feed","えさをやる","v"],
+["fill","満たす","v"],["fit","(サイズが)合う","v"],["fix","直す・固定する","v"],["follow","ついていく・従う","v"],["forgive","許す","v"],
+["gather","集める・集まる","v"],["graduate","卒業する","v"],["greet","あいさつする","v"],["guess","推測する","v"],["handle","あつかう","v"],
+["hang","かける・つるす","v"],["happen","起こる","v"],["hide","かくす・かくれる","v"],["hire","雇う","v"],["hunt","狩りをする","v"],
+["hurt","傷つける・痛む","v"],["imagine","想像する","v"],["improve","改善する・上達する","v"],["include","ふくむ","v"],["increase","増える・増やす","v"],
+["introduce","紹介する","v"],["invent","発明する","v"],["invite","招待する","v"],["judge","判断する","v"],["lay","置く・横たえる","v"],
+["lead","導く","v"],["lend","貸す","v"],["lift","持ち上げる","v"],["lock","かぎをかける","v"],["marry","結婚する","v"],
+["matter","重要である","v"],["measure","測る","v"],["melt","とける","v"],["mention","ちょっと述べる","v"],["mix","混ぜる","v"],
+["notice","気づく","v"],["offer","申し出る・提供する","v"],["order","注文する・命令する","v"],["own","所有している","v"],["pack","荷造りする","v"],
+["perform","演じる・行う","v"],["plant","植える","v"],["prefer","〜のほうを好む","v"],["prepare","準備する","v"],["print","印刷する","v"],
+["produce","生産する","v"],["promise","約束する","v"],["pronounce","発音する","v"],["protect","守る","v"],["prove","証明する","v"],
+["provide","提供する","v"],["publish","出版する","v"],["quit","やめる","v"],["raise","上げる・育てる","v"],["reach","着く・とどく","v"],
+["realize","気づく・実現する","v"],["receive","受け取る","v"],["recommend","すすめる","v"],["recycle","リサイクルする","v"],["reduce","減らす","v"],
+["relax","くつろぐ","v"],["remain","残る・〜のままである","v"],["remember","覚えている・思い出す","v"],["remind","思い出させる","v"],["remove","取り除く","v"],
+["rent","賃借りする","v"],["repair","修理する","v"],["repeat","くり返す","v"],["replace","取りかえる","v"],["reply","返事をする","v"],
+["report","報告する","v"],["require","必要とする","v"],["reserve","予約する","v"],["respect","尊敬する","v"],["return","もどる・返す","v"],
+["rise","のぼる・上がる","v"],["save","救う・節約する・ためる","v"],["search","さがす","v"],["seem","〜のように見える","v"],["separate","分ける・引きはなす","v"],
+["serve","(食事を)出す・仕える","v"],["share","分け合う・共有する","v"],["shine","かがやく","v"],["shut","閉める","v"],["sink","しずむ","v"],
+["solve","解決する","v"],["spread","広がる・広げる","v"],["steal","ぬすむ","v"],["stretch","のばす・ストレッチする","v"],["succeed","成功する","v"],
+["suggest","提案する","v"],["supply","供給する","v"],["support","支える・支持する","v"],["suppose","〜だと思う","v"],["surround","囲む","v"],
+["survive","生きのびる","v"],["translate","翻訳する","v"],["trust","信頼する","v"],["waste","むだにする","v"],["weigh","重さが〜ある","v"],
+["wonder","〜かなと思う","v"],["wrap","包む","v"],
+["accident","事故","n"],["activity","活動","n"],["adult","大人","n"],["advice","助言・アドバイス","n"],["amount","量・金額","n"],
+["apartment","アパート・マンション","n"],["appointment","(面会の)約束・予約","n"],["article","記事","n"],["audience","観客・聴衆","n"],["author","作家・著者","n"],
+["average","平均","n"],["bakery","パン屋","n"],["behavior","ふるまい・行動","n"],["bill","請求書・紙幣","n"],["blanket","毛布","n"],
+["boss","上司","n"],["bottom","底・一番下","n"],["branch","枝・支店","n"],["business","仕事・商売","n"],["career","経歴・職業","n"],
+["ceiling","天井","n"],["century","世紀","n"],["ceremony","式典","n"],["chance","機会・チャンス","n"],["character","性格・登場人物","n"],
+["charity","慈善・チャリティー","n"],["childhood","子ども時代","n"],["choice","選択","n"],["climate","気候","n"],["coast","海岸","n"],
+["comedy","喜劇・コメディ","n"],["company","会社","n"],["conversation","会話","n"],["corner","角","n"],["cost","費用","n"],
+["costume","衣装","n"],["cotton","綿","n"],["countryside","いなか","n"],["coupon","クーポン券","n"],["court","裁判所・コート","n"],
+["culture","文化","n"],["custom","習慣・風習","n"],["customer","客","n"],["danger","危険","n"],["daughter","娘","n"],
+["decision","決定","n"],["degree","度・程度・学位","n"],["dentist","歯医者","n"],["desert","砂漠","n"],["dessert","デザート","n"],
+["diary","日記","n"],["direction","方向","n"],["discount","割引","n"],["disease","病気","n"],["distance","距離","n"],
+["document","書類","n"],["effect","効果・影響","n"],["effort","努力","n"],["electricity","電気","n"],["employee","従業員","n"],
+["energy","エネルギー","n"],["engineer","技師・エンジニア","n"],["entrance","入り口","n"],["environment","環境","n"],["equipment","装備・設備","n"],
+["exam","試験","n"],["exhibition","展覧会","n"],["expert","専門家","n"],["expression","表現・表情","n"],["fact","事実","n"],
+["fashion","流行・ファッション","n"],["fear","おそれ・恐怖","n"],["fee","料金","n"],["fever","熱","n"],["fiction","フィクション・小説","n"],
+["figure","数字・姿","n"],["flavor","味・風味","n"],["flight","飛行機の便","n"],["forecast","予報","n"],["fuel","燃料","n"],
+["furniture","家具","n"],["garage","車庫・ガレージ","n"],["goal","目標・ゴール","n"],["government","政府","n"],["grade","学年・成績","n"],
+["guest","客・ゲスト","n"],["habit","(個人の)習慣・くせ","n"],["health","健康","n"],["heat","熱・暑さ","n"],["hero","英雄・ヒーロー","n"],
+["hole","穴","n"],["hometown","故郷","n"],["host","主人・主催者","n"],["illness","病気","n"],["image","印象・画像","n"],
+["importance","重要性","n"],["impression","印象","n"],["income","収入","n"],["industry","産業","n"],["information","情報","n"],
+["ingredient","材料","n"],["injury","けが","n"],["insect","昆虫","n"],["instrument","楽器・器具","n"],["interview","面接・インタビュー","n"],
+["invention","発明","n"],["island","島","n"],["item","品物・項目","n"],["journey","旅","n"],["kindergarten","幼稚園","n"],
+["knowledge","知識","n"],["lack","不足","n"],["language","言語","n"],["law","法律","n"],["lecture","講義","n"],
+["level","水準・レベル","n"],["license","免許","n"],["luck","運","n"],["luggage","手荷物","n"],["machine","機械","n"],
+["manager","経営者・マネージャー","n"],["marathon","マラソン","n"],["meaning","意味","n"],["medicine","薬","n"],["memory","記憶・思い出","n"],
+["message","伝言・メッセージ","n"],["method","方法","n"],["midnight","真夜中","n"],["mistake","まちがい","n"],["moment","瞬間","n"],
+["mood","気分","n"],["mystery","なぞ・ミステリー","n"],["nature","自然","n"],["neighbor","隣人・近所の人","n"],["neighborhood","近所","n"],
+["noise","騒音","n"],["novel","小説","n"],["object","物・目的","n"],["ocean","大洋・海","n"],["opinion","意見","n"],
+["opportunity","機会","n"],["owner","持ち主","n"],["pain","痛み","n"],["passenger","乗客","n"],["password","パスワード","n"],
+["patient","患者","n"],["pattern","模様・型","n"],["percent","パーセント","n"],["performance","演技・公演","n"],["period","期間・時代","n"],
+["planet","惑星","n"],["pleasure","喜び","n"],["poem","詩","n"],["pollution","汚染","n"],["population","人口","n"],
+["prize","賞","n"],["product","製品","n"],["professor","教授","n"],["project","計画・プロジェクト","n"],["purpose","目的","n"],
+["quality","質","n"],["quantity","量","n"],["quarter","4分の1・15分","n"],["reason","理由","n"],["recipe","レシピ","n"],
+["refrigerator","冷蔵庫","n"],["relationship","関係","n"],["research","研究・調査","n"],["resident","住民","n"],["resource","資源","n"],
+["result","結果","n"],["role","役割","n"],["rule","規則・ルール","n"],["safety","安全","n"],["salary","給料","n"],
+["sale","販売・セール","n"],["scene","場面","n"],["schedule","予定・スケジュール","n"],["scientist","科学者","n"],["seafood","海産物","n"],
+["secret","秘密","n"],["section","部分・区画","n"],["service","サービス","n"],["shape","形","n"],["sign","標識・記号・きざし","n"],
+["silence","静けさ・沈黙","n"],["situation","状況","n"],["skill","技能・スキル","n"],["smell","におい","n"],["society","社会","n"],
+["soil","土","n"],["solution","解決策","n"],["source","源・出どころ","n"],["speech","スピーチ・演説","n"],["stadium","スタジアム","n"],
+["staff","職員・スタッフ","n"],["statue","像","n"],["stomach","胃・おなか","n"],["storm","嵐","n"],["stress","ストレス","n"],
+["suburb","郊外","n"],["success","成功","n"],["sunlight","日光","n"],["surface","表面","n"],["survey","調査・アンケート","n"],
+["symbol","象徴・記号","n"],["system","制度・システム","n"],["taste","味","n"],["tax","税金","n"],["technology","科学技術","n"],
+["temperature","温度・気温","n"],["theater","劇場・映画館","n"],["tool","道具","n"],["topic","話題","n"],["tourist","観光客","n"],
+["tournament","トーナメント・大会","n"],["tradition","伝統","n"],["traffic","交通(量)","n"],["trend","傾向・流行","n"],["trouble","困りごと・トラブル","n"],
+["truth","真実","n"],["uniform","制服","n"],["university","大学","n"],["vacation","休暇","n"],["value","価値","n"],
+["variety","多様性・いろいろ","n"],["victory","勝利","n"],["view","ながめ・見方","n"],["village","村","n"],["voice","声","n"],
+["volunteer","ボランティア","n"],["war","戦争","n"],["weight","重さ・体重","n"],["wheel","車輪","n"],["wood","木材・森","n"],
+["able","〜できる","a"],["afraid","こわがって","a"],["alive","生きている","a"],["amazing","おどろくべき・すごい","a"],["ancient","古代の","a"],
+["angry","おこって","a"],["anxious","心配して・切望して","a"],["asleep","ねむって","a"],["available","利用できる・手に入る","a"],["awake","目がさめて","a"],
+["awful","ひどい","a"],["bitter","苦い","a"],["blind","目の見えない","a"],["boring","たいくつな","a"],["brave","勇敢な","a"],
+["bright","明るい・かしこい","a"],["broken","こわれた","a"],["careful","注意深い","a"],["careless","不注意な","a"],["cheap","安い","a"],
+["chemical","化学の","a"],["classical","古典の・クラシックの","a"],["clear","はっきりした・すんだ","a"],["clever","かしこい","a"],["comfortable","快適な","a"],
+["common","ふつうの・共通の","a"],["convenient","便利な","a"],["correct","正しい","a"],["crowded","こんでいる","a"],["curious","好奇心の強い","a"],
+["dangerous","危険な","a"],["dead","死んでいる","a"],["delicious","とてもおいしい","a"],["different","ちがう","a"],["difficult","難しい","a"],
+["dirty","よごれた","a"],["elderly","年配の","a"],["electric","電気の","a"],["embarrassed","はずかしい思いをして","a"],["empty","からの","a"],
+["entire","全体の","a"],["environmental","環境の","a"],["exact","正確な","a"],["excellent","すばらしい・優秀な","a"],["excited","わくわくして","a"],
+["expensive","高価な","a"],["familiar","よく知られた・なじみの","a"],["famous","有名な","a"],["fantastic","すばらしい","a"],["favorite","お気に入りの","a"],
+["final","最後の","a"],["foreign","外国の","a"],["fresh","新鮮な","a"],["friendly","親切な・友好的な","a"],["frozen","こおった・冷凍の","a"],
+["giant","巨大な","a"],["glad","うれしい","a"],["global","世界的な","a"],["harmful","有害な","a"],["healthy","健康な・健康によい","a"],
+["heavy","重い","a"],["helpful","役に立つ","a"],["honest","正直な","a"],["huge","巨大な","a"],["hungry","おなかがすいた","a"],
+["important","重要な","a"],["impossible","不可能な","a"],["instant","即席の・すぐの","a"],["international","国際的な","a"],["jealous","うらやましがる・しっと深い","a"],
+["latest","最新の","a"],["lazy","なまけものの","a"],["local","地元の","a"],["lonely","さびしい","a"],["loud","(音が)大きい","a"],
+["lucky","運のいい","a"],["main","主な","a"],["major","主要な・大きい方の","a"],["medical","医療の","a"],["messy","散らかった","a"],
+["modern","現代の","a"],["narrow","せまい","a"],["native","生まれた土地の・母国の","a"],["natural","自然の","a"],["nearby","近くの","a"],
+["necessary","必要な","a"],["negative","否定的な・マイナスの","a"],["nervous","緊張して","a"],["noisy","うるさい","a"],["normal","ふつうの・正常な","a"],
+["official","公式の","a"],["ordinary","ふつうの・平凡な","a"],["original","もとの・独創的な","a"],["peaceful","平和な・おだやかな","a"],["perfect","完ぺきな","a"],
+["physical","身体の・物理的な","a"],["plain","質素な・明白な","a"],["polite","礼儀正しい","a"],["poor","貧しい・へたな","a"],["popular","人気のある","a"],
+["positive","前向きな・プラスの","a"],["possible","可能な","a"],["powerful","強力な","a"],["private","私的な・個人の","a"],["professional","プロの・専門的な","a"],
+["proud","ほこりに思う","a"],["public","公共の","a"],["quiet","静かな","a"],["rare","めずらしい","a"],["raw","生の","a"],
+["ready","用意ができて","a"],["real","本物の・現実の","a"],["recent","最近の","a"],["regular","定期的な・ふつうの","a"],["rich","金持ちの・豊かな","a"],
+["rude","失礼な","a"],["safe","安全な","a"],["salty","塩からい","a"],["scared","おびえた","a"],["scary","こわい","a"],
+["serious","深刻な・まじめな","a"],["several","いくつかの","a"],["sharp","するどい","a"],["shy","はずかしがりの","a"],["silent","無言の・静かな","a"],
+["silly","ばかげた","a"],["similar","似ている","a"],["simple","簡単な・単純な","a"],["sleepy","ねむい","a"],["smart","かしこい","a"],
+["smooth","なめらかな","a"],["social","社会の","a"],["sour","すっぱい","a"],["special","特別な","a"],["strange","奇妙な","a"],
+["strict","厳しい","a"],["strong","強い","a"],["successful","成功した","a"],["sudden","突然の","a"],["sure","確信して","a"],
+["surprised","おどろいて","a"],["terrible","ひどい","a"],["thick","厚い・太い","a"],["thin","うすい・細い","a"],["thirsty","のどがかわいた","a"],
+["tight","きつい","a"],["tiny","とても小さい","a"],["tired","つかれた","a"],["traditional","伝統的な","a"],["unique","独特の","a"],
+["unusual","めずらしい・ふつうでない","a"],["useful","役に立つ","a"],["usual","いつもの","a"],["valuable","貴重な","a"],["various","さまざまな","a"],
+["weak","弱い","a"],["wet","ぬれた","a"],["whole","全体の","a"],["wide","はばの広い","a"],["wild","野生の","a"],
+["wise","賢明な","a"],["wonderful","すばらしい","a"],
+["abroad","外国へ・外国で","d"],["actually","実際は","d"],["almost","ほとんど","d"],["already","すでに","d"],["anymore","(否定文で)もはや","d"],
+["anyway","とにかく","d"],["carefully","注意深く","d"],["certainly","確かに","d"],["clearly","はっきりと","d"],["completely","完全に","d"],
+["correctly","正しく","d"],["daily","毎日(の)","d"],["directly","直接に","d"],["easily","簡単に","d"],["especially","特に","d"],
+["eventually","結局・最終的に","d"],["exactly","正確に・まさに","d"],["finally","ついに","d"],["fortunately","幸運にも","d"],["forward","前方へ","d"],
+["immediately","すぐに","d"],["indoors","室内で","d"],["instead","そのかわりに","d"],["lately","最近","d"],["loudly","大声で","d"],
+["luckily","運よく","d"],["mostly","たいてい・主に","d"],["nearly","ほとんど・もう少しで","d"],["nowadays","近ごろは","d"],["outdoors","屋外で","d"],
+["overseas","海外へ・海外で","d"],["perhaps","もしかすると","d"],["probably","たぶん","d"],["properly","きちんと","d"],["quickly","すばやく","d"],
+["quietly","静かに","d"],["rapidly","急速に","d"],["rarely","めったに〜ない","d"],["recently","最近","d"],["regularly","定期的に","d"],
+["safely","安全に","d"],["simply","単に","d"],["someday","いつか","d"],["straight","まっすぐに","d"],["suddenly","突然","d"],
+["twice","2回・2倍","d"],["unfortunately","残念ながら","d"],["upstairs","上の階へ","d"],
+["a couple of","2〜3の","j"],["a variety of","さまざまな","j"],["according to","〜によれば","j"],["after all","結局","j"],["apply for","〜に申しこむ","j"],
+["as a result","その結果","j"],["as soon as","〜するとすぐに","j"],["as usual","いつものように","j"],["at first","最初は","j"],["at last","ついに","j"],
+["at least","少なくとも","j"],["at once","すぐに","j"],["at the same time","同時に","j"],["be able to","〜することができる","j"],["be about to","まさに〜しようとしている","j"],
+["be absent from","〜を欠席している","j"],["be afraid of","〜をこわがる","j"],["be based on","〜にもとづいている","j"],["be different from","〜とちがう","j"],["be famous for","〜で有名である","j"],
+["be filled with","〜でいっぱいである","j"],["be full of","〜でいっぱいである","j"],["be good at","〜が得意である","j"],["be in trouble","困っている","j"],["be interested in","〜に興味がある","j"],
+["be known as","〜として知られている","j"],["be late for","〜に遅れる","j"],["be made of","〜でできている","j"],["be proud of","〜をほこりに思う","j"],["be ready for","〜の準備ができている","j"],
+["be satisfied with","〜に満足している","j"],["be similar to","〜と似ている","j"],["be surprised at","〜におどろく","j"],["be used to -ing","〜することに慣れている","j"],["be worried about","〜を心配している","j"],
+["because of","〜のために(原因)","j"],["break down","故障する","j"],["bring back","持ち帰る・返す","j"],["by mistake","まちがえて","j"],["by oneself","ひとりで・独力で","j"],
+["care about","〜を気にかける","j"],["carry out","実行する","j"],["catch up with","〜に追いつく","j"],["come across","〜に偶然出会う","j"],["come true","実現する","j"],
+["come up with","〜を思いつく","j"],["depend on","〜にたよる・〜しだいである","j"],["do one's best","全力をつくす","j"],["drop by","立ち寄る","j"],["each other","おたがい","j"],
+["far away","遠くはなれて","j"],["feel like -ing","〜したい気がする","j"],["figure out","理解する・解決する","j"],["fill out","(書類に)記入する","j"],["find out","見つけ出す・わかる","j"],
+["first of all","まず第一に","j"],["for a while","しばらくの間","j"],["for example","たとえば","j"],["for free","無料で","j"],["for the first time","初めて","j"],
+["get along with","〜と仲良くやる","j"],["get in touch with","〜と連絡を取る","j"],["get off","(乗り物を)降りる","j"],["get on","(乗り物に)乗る","j"],["get out of","〜から出る","j"],
+["get over","〜を乗りこえる","j"],["get rid of","〜を取り除く","j"],["get together","集まる","j"],["give up","あきらめる","j"],["go through","〜を経験する・通りぬける","j"],
+["graduate from","〜を卒業する","j"],["grow up","成長する・大人になる","j"],["had better","〜したほうがよい","j"],["hand in","提出する","j"],["hang out","(友だちと)ぶらぶら過ごす","j"],
+["hear from","〜から連絡がある","j"],["hold on","(電話を切らずに)待つ","j"],["hurry up","急ぐ","j"],["in addition","さらに・加えて","j"],["in fact","実際は","j"],
+["in front of","〜の前に","j"],["in order to","〜するために","j"],["in other words","言いかえれば","j"],["in the end","最後には","j"],["in time","間に合って","j"],
+["instead of","〜のかわりに","j"],["keep in mind","心にとめておく","j"],["laugh at","〜を笑う","j"],["look after","〜の世話をする","j"],["look for","〜をさがす","j"],
+["look forward to","〜を楽しみに待つ","j"],["look up","(辞書などで)調べる","j"],["make friends with","〜と友だちになる","j"],["make fun of","〜をからかう","j"],["make sense","意味が通じる・道理にかなう","j"],
+["make sure","確かめる","j"],["make up one's mind","決心する","j"],["no longer","もはや〜ない","j"],["on business","仕事で","j"],["on purpose","わざと","j"],
+["on sale","セール中で・販売中で","j"],["on time","時間どおりに","j"],["once in a while","ときどき","j"],["one after another","次々に","j"],["participate in","〜に参加する","j"],
+["pay attention to","〜に注意をはらう","j"],["pick up","拾う・車でむかえに行く","j"],["plenty of","たくさんの","j"],["put off","延期する","j"],["put on","身につける","j"],
+["right away","すぐに","j"],["run away","にげる","j"],["run out of","〜を使い果たす","j"],["search for","〜をさがす","j"],["set up","設立する・準備する","j"],
+["show up","現れる・姿を見せる","j"],["so far","今のところ","j"],["sooner or later","おそかれ早かれ","j"],["stay away from","〜に近づかない","j"],["stay up late","夜ふかしする","j"],
+["succeed in","〜に成功する","j"],["such as","〜のような","j"],["take a break","休けいする","j"],["take care of","〜の世話をする","j"],["take off","脱ぐ・離陸する","j"],
+["take part in","〜に参加する","j"],["take place","行われる・起こる","j"],["thanks to","〜のおかげで","j"],["these days","近ごろ","j"],["throw away","捨てる","j"],
+["try on","試着する","j"],["turn down","断る・(音量を)下げる","j"],["turn in","提出する","j"],["turn off","(スイッチを)切る","j"],["turn on","(スイッチを)入れる","j"],
+["used to","以前は〜したものだ","j"],["wait for","〜を待つ","j"],["work on","〜に取り組む","j"],["would like to","〜したいのですが","j"],["write down","書きとめる","j"],
+// --- リサーチ反映分(CEFR-J A2-B1相当・頻出補完) ---
+["admit","認める","v"],["afford","〜する余裕がある","v"],["appreciate","感謝する","v"],["award","賞を与える","v"],["chew","かむ","v"],
+["concentrate","集中する","v"],["consist","成り立つ","v"],["consult","相談する","v"],["contain","ふくむ","v"],["deny","否定する","v"],
+["disappoint","がっかりさせる","v"],["employ","雇う","v"],["examine","調べる・検査する","v"],["exist","存在する","v"],["expand","拡大する","v"],
+["export","輸出する","v"],["extend","のばす・延長する","v"],["ignore","無視する","v"],["import","輸入する","v"],["impress","感動させる","v"],
+["injure","けがをさせる","v"],["maintain","維持する","v"],["memorize","暗記する","v"],["nod","うなずく","v"],["organize","準備する・組織する","v"],
+["pretend","〜のふりをする","v"],["prevent","防ぐ","v"],["recognize","見分ける・認める","v"],["recover","回復する","v"],["regret","後悔する","v"],
+["rely","たよる","v"],["specialize","専門にする","v"],["stare","じっと見る","v"],["suffer","苦しむ","v"],["sweep","(ほうきで)はく","v"],
+["tease","からかう","v"],["transport","輸送する","v"],["treat","あつかう・おごる","v"],["vote","投票する","v"],["whisper","ささやく","v"],
+["admire","感心する・ほめる","v"],["affect","影響をあたえる","v"],["ability","能力","n"],["ancestor","先祖","n"],["argument","議論・口論","n"],
+["atmosphere","ふんいき・大気","n"],["attention","注意","n"],["attitude","態度","n"],["baggage","手荷物","n"],["campaign","キャンペーン・運動","n"],
+["cash","現金","n"],["chemistry","化学","n"],["citizen","市民","n"],["community","地域社会","n"],["competition","競争・大会","n"],
+["conference","会議","n"],["condition","状態・条件","n"],["construction","建設","n"],["corporation","大企業","n"],["courage","勇気","n"],
+["crime","犯罪","n"],["crop","作物","n"],["crowd","群衆・人ごみ","n"],["death","死","n"],["department","部門・売り場","n"],
+["detail","詳細","n"],["disaster","災害","n"],["discovery","発見","n"],["education","教育","n"],["emergency","緊急事態","n"],
+["emotion","感情","n"],["enemy","敵","n"],["examination","試験・検査","n"],["explanation","説明","n"],["fossil","化石","n"],
+["harvest","収穫","n"],["influence","影響","n"],["instruction","指示・説明書","n"],["issue","問題(点)","n"],["literature","文学","n"],
+["material","材料","n"],["muscle","筋肉","n"],["nation","国家・国民","n"],["organization","組織・団体","n"],["pressure","圧力・プレッシャー","n"],
+["process","過程","n"],["region","地域","n"],["reservation","予約","n"],["reward","ほうび・報酬","n"],["sense","感覚","n"],
+["shortage","不足","n"],["statement","声明・発言","n"],["theory","理論","n"],["vehicle","乗り物","n"],["attractive","魅力的な","a"],
+["calm","おだやかな・落ち着いた","a"],["central","中央の","a"],["certain","確かな","a"],["concrete","具体的な","a"],["confident","自信のある","a"],
+["constant","一定の・絶え間ない","a"],["effective","効果的な","a"],["elementary","初歩の","a"],["extra","余分の","a"],["fair","公正な・公平な","a"],
+["formal","正式な","a"],["frightened","おびえた","a"],["ideal","理想的な","a"],["individual","個々の","a"],["likely","〜しそうな","a"],
+["particular","特定の","a"],["past","過去の","a"],["portable","持ち運べる","a"],["rough","ざらざらした・大まかな","a"],["specific","特定の・具体的な","a"],
+["steady","着実な・安定した","a"],["suitable","適した","a"],["unlikely","ありそうにない","a"],["afterward","あとで","d"],["ahead","前方に・先に","d"],
+["apparently","見たところ〜らしい","d"],["frankly","率直に言って","d"],["generally","一般的に","d"],["gradually","だんだんと","d"],["hopefully","うまくいけば","d"],
+["however","しかしながら","d"],["moreover","そのうえ","d"],["originally","もともとは","d"],["otherwise","さもなければ","d"],["seldom","めったに〜ない","d"],
+["therefore","それゆえに","d"],["although","〜だけれども","c"],["though","〜だけれども","c"],["unless","〜でないかぎり","c"],["while","〜する間に・〜だが","c"],
+["despite","〜にもかかわらず","c"],["except","〜を除いて","c"],["within","〜以内に","c"],["all of a sudden","突然","j"],["be absorbed in","〜に夢中になっている","j"],
+["be aware of","〜に気づいている","j"],["be crowded with","〜で混雑している","j"],["be likely to","〜しそうである","j"],["be made up of","〜で構成されている","j"],["be responsible for","〜に責任がある","j"],
+["be willing to","進んで〜する","j"],["bring up","育てる","j"],["by accident","偶然に","j"],["by chance","偶然に","j"],["call off","中止する","j"],
+["consist of","〜から成る","j"],["deal with","〜に対処する","j"],["due to","〜が原因で","j"],["in addition to","〜に加えて","j"],["in advance","前もって","j"],
+["in charge of","〜を担当して","j"],["in common","共通して","j"],["in spite of","〜にもかかわらず","j"],["in terms of","〜の観点から","j"],["keep up with","〜についていく","j"],
+["look into","〜を調べる","j"],["look up to","〜を尊敬する","j"],["put up with","〜をがまんする","j"],["rely on","〜にたよる","j"],["see off","見送る","j"],
+["take advantage of","〜をうまく利用する","j"],["to one's surprise","おどろいたことに","j"],["turn out","〜だと判明する","j"],["give off","(光・においを)発する","j"],["hand over","手渡す","j"],
+["make progress","進歩する","j"],["more and more","ますます","j"],["not only A but also B","AだけでなくBも","j"],["take after","(親などに)似ている","j"],["Why don't we ~?","(いっしょに)〜しませんか?","j"],
+["Why don't you ~?","〜したらどうですか?","j"],["Would you like ~?","〜はいかがですか?","j"],["How about ~?","〜はどうですか?","j"],["What do you say to -ing?","〜しませんか?","j"],["Do you mind if ~?","〜してもいいですか?","j"],
+["Would you mind -ing?","〜していただけませんか?","j"],["Make yourself at home.","くつろいでください","j"],["Help yourself to ~.","ご自由にお取りください","j"],["Go ahead.","どうぞ(お先に)","j"],["Let me see.","ええと・そうですね","j"],
+["That's too bad.","それは残念です","j"]
+];
+
+// ---------- 学習データ(Leitnerボックス方式) ----------
+const POSNAME={v:"動詞",n:"名詞",a:"形容詞",d:"副詞",c:"接続詞・前置詞",j:"熟語"};
+const SKEY="eiken-p2-progress-v1";
+let progress={child:{},parent:{}};
+let memOnly=false;
+
+async function loadProgress(){
+  try{
+    if(window.storage&&window.storage.get){
+      const r=await window.storage.get(SKEY);
+      if(r&&r.value)progress=JSON.parse(r.value);
+    }else memOnly=true;
+  }catch(e){/* キー未作成 or 利用不可 */ if(!(window.storage&&window.storage.get))memOnly=true;}
+}
+let saveTimer=null;
+function saveProgress(){
+  if(memOnly)return;
+  clearTimeout(saveTimer);
+  saveTimer=setTimeout(async()=>{
+    try{await window.storage.set(SKEY,JSON.stringify(progress));}catch(e){}
+  },400);
+}
+function meta(){
+  if(!progress._m)progress._m={ls:{child:0,parent:0},xp:{child:0,parent:0}};
+  if(!progress._m.ls)progress._m.ls={child:0,parent:0};
+  if(!progress._m.xp)progress._m.xp={child:0,parent:0};
+  return progress._m;
+}
+function level(xp){return 1+Math.floor(Math.sqrt(xp/60));}
+function lvlXp(l){return 60*(l-1)*(l-1);}
+const TITLES=[[20,"でんせつの単語王"],[15,"えいごの達人"],[11,"たんごマスター"],[8,"フレーズ使い"],[5,"ワードハンター"],[3,"ことばコレクター"],[1,"たんご見習い"]];
+function title(l){for(const[t,n]of TITLES)if(l>=t)return n;return"たんご見習い";}
+function rec(pl,key){return progress[pl][key]||null;}
+function setRec(pl,key,b){
+  const r=progress[pl][key]||{b:0,t:0,w:0};
+  if(b<r.b&&r.b>0)r.w=(r.w||0)+1;
+  r.b=Math.max(0,Math.min(5,b));r.t=Date.now();
+  progress[pl][key]=r;saveProgress();
+}
+const DAY=86400000;
+function weight(pl,item){
+  const r=rec(pl,item[0]);
+  if(!r)return 5;                       // 未学習を優先
+  const age=Date.now()-r.t;
+  if(r.b<=1)return 6;                   // にがて最優先
+  if(r.b<=3)return age>DAY?4:1;         // 学習中は1日たったら再出題
+  return age>3*DAY?2:0.3;               // マスター済みはたまに復習
+}
+
+// ---------- ユーティリティ ----------
+const $=id=>document.getElementById(id);
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function pickWeighted(pool,pl,n){
+  const scored=pool.map(it=>({it,s:weight(pl,it)*(0.5+Math.random())}));
+  scored.sort((x,y)=>y.s-x.s);
+  return scored.slice(0,n).map(x=>x.it);
+}
+function speak(text){
+  if(!("speechSynthesis"in window))return;
+  speechSynthesis.cancel();
+  const t=text.replace(/-ing/g,"").replace(/ A /g," ").replace(/ B\b/g,"").replace(/[~〜]/g,"").replace(/\s+/g," ").trim();
+  const u=new SpeechSynthesisUtterance(t);
+  u.lang="en-US";u.rate=0.85;
+  const v=speechSynthesis.getVoices().find(v=>v.lang.startsWith("en"));
+  if(v)u.voice=v;
+  speechSynthesis.speak(u);
+}
+if("speechSynthesis"in window)speechSynthesis.getVoices();
+
+// ---------- 画面制御 ----------
+let sel={player:"child",cat:"w",mode:"normal",handi:"off",len:"16"};
+function segInit(id,key){
+  $(id).querySelectorAll("button").forEach(b=>{
+    b.onclick=()=>{
+      $(id).querySelectorAll("button").forEach(x=>x.classList.remove("on"));
+      b.classList.add("on");sel[key]=b.dataset.v;renderStats();
+    };
+  });
+}
+segInit("selPlayer","player");segInit("selCat","cat");segInit("selMode","mode");segInit("selHandi","handi");segInit("selLen","len");
+
+function catPool(){
+  if(sel.cat==="w")return W.filter(x=>x[2]!=="j");
+  if(sel.cat==="j")return W.filter(x=>x[2]==="j");
+  return W;
+}
+function renderStats(){
+  const pool=catPool();
+  const players=sel.player==="battle"?["child","parent"]:[sel.player];
+  const nm={child:"こども",parent:"おうち"};
+  let html="";
+  players.forEach(pl=>{
+    let m=0,l=0,wk=0,u=0;
+    pool.forEach(it=>{const r=rec(pl,it[0]);
+      if(!r)u++;else if(r.b>=4)m++;else if(r.b>=2)l++;else wk++;});
+    const pct=Math.round(m/pool.length*100);
+    const xpv=meta().xp[pl]||0,lv=level(xpv),need=lvlXp(lv+1)-xpv;
+    html+=`<div style="display:flex;justify-content:space-between;align-items:baseline;">
+      <b style="font-size:14px;">${nm[pl]} <span style="color:var(--amber-dk);font-size:13px;">Lv.${lv} ${title(lv)}</span></b>
+      <span style="font-size:11px;color:var(--sub);">${xpv}XP・次のLvまで${need}</span></div>`;
+    if(sel.player==="battle"&&(meta().ls[pl]||0)>0)html+=`<div class="note" style="margin:0;">🤝 まけこしハンデ: 次の対戦は +${Math.min(meta().ls[pl]*15,45)}点スタート</div>`;
+    html+=`<div style="margin-bottom:6px;"><b style="font-size:14px;">進み具合</b>
+    <span style="font-size:12px;color:var(--sub);">(${POSNAME[sel.cat]||"全"}${pool.length}語中)</span></div>
+    <div class="statgrid">
+      <div class="stat"><b style="color:var(--green-dk)">${m}</b><span>マスター</span></div>
+      <div class="stat"><b style="color:var(--blue-dk)">${l}</b><span>学習中</span></div>
+      <div class="stat"><b style="color:var(--coral-dk)">${wk}</b><span>にがて</span></div>
+      <div class="stat"><b>${u}</b><span>これから</span></div>
+    </div>
+    <div class="pbar"><i style="width:${pct}%"></i></div>
+    <div class="note" style="text-align:right;">マスター率 ${pct}%</div>`;
+  });
+  $("statsCard").innerHTML=html;
+  $("handiBlock").style.display=sel.player==="battle"?"":"none";
+  $("homeNote").textContent=memOnly?"※この環境では進み具合を保存できません(遊ぶことはできます)":"進み具合は自動で保存されます。";
+}
+
+// ---------- クイズ本体 ----------
+const BASE=10;
+let deck=[],qi=0,turn=0,scores=[0,0],streaks=[0,0],missed=new Map(),answered=false,battle=false,requeued=new Set();
+let stealing=false,stealWins=[0,0],handicap=false,timerId=null;
+let miracle=[false,false],miracleActive=false,miraclePts=0,stealX=1;
+let sdRound=0;
+let RS=[0,0];   // ラウンド頭の点差スナップショット(公平なおいつき判定用)
+let xpGain=[0,0],corr=[0,0],advStart=[0,0],lastShown=[0,0];
+let items=[null,null],trap=[null,null],buffDash=[false,false],buffStar=[false,false],qTrap=null,rolling=[false,false],lastItem=[null,null],floorItem=null;
+const ITEMS={
+  mush:{ic:"🍄",nm:"ダッシュキノコ",ds:"この問題の正解 +15点"},
+  green:{ic:"🐢",nm:"ミドリこうら",ds:"相手 -10点&連続記録リセット"},
+  banana:{ic:"🍌",nm:"バナナ",ds:"相手の次の問題の得点を半分に"},
+  thunder:{ic:"⚡",nm:"サンダー",ds:"相手の次の問題を5秒制限に"},
+  red:{ic:"🎯",nm:"アカこうら",ds:"相手 -25点&連続記録リセット"},
+  squid:{ic:"🦑",nm:"ゲッソー",ds:"相手の次の問題の選択肢をスミまみれに"},
+  star:{ic:"🌟",nm:"スター",ds:"この問題 得点2倍&ミスしても盗まれない"}
+};
+const PNAME=["こども","おうち"];
+
+$("btnStart").onclick=()=>{
+  battle=sel.player==="battle";
+  let pool=catPool();
+  const basePl=battle?"child":sel.player;
+  if(sel.mode==="weak"){
+    pool=pool.filter(it=>{const r=rec(basePl,it[0]);return r&&r.b<=1;});
+    if(pool.length<4){alert("「にがて」の単語がまだ足りません。まずは「ふつう」モードで遊んでね!");return;}
+  }
+  const LEN=parseInt(sel.len)||16;
+  const n=Math.min(LEN,pool.length);
+  if(battle){
+    const half=Math.ceil(n/2);
+    const c=pickWeighted(pool,"child",half);
+    const rest=pool.filter(x=>!c.includes(x));
+    const p=pickWeighted(rest.length>=half?rest:pool,"parent",Math.floor(n/2));
+    deck=[];const cs=shuffle(c),ps=shuffle(p);
+    for(let i=0;i<half;i++){if(cs[i])deck.push({it:cs[i],re:false});if(ps[i])deck.push({it:ps[i],re:false});}
+  }else{
+    deck=shuffle(pickWeighted(pool,basePl,n)).map(it=>({it,re:false}));
+  }
+  deck.forEach(q=>q.m=1);
+  const finals=battle?2:1;
+  if(deck.length>=5){
+    for(let i=1;i<=finals;i++)deck[deck.length-i].m=3;   // ラストはファイナルチャンス3倍
+    const cand=shuffle([...Array(deck.length-finals).keys()].filter(i=>i>0));
+    if(!battle)cand.slice(0,Math.max(2,Math.round(deck.length/7))).forEach(i=>deck[i].m=2);  // ソロは固定。対戦は毎問その場で抽選
+  }
+  handicap=battle&&sel.handi==="on";
+  qi=0;turn=0;scores=[0,0];streaks=[0,0];missed=new Map();requeued=new Set();stealing=false;stealWins=[0,0];miracle=[false,false];miracleActive=false;stealX=1;sdRound=0;RS=[0,0];xpGain=[0,0];corr=[0,0];lastShown=[0,0];items=[null,null];trap=[null,null];buffDash=[false,false];buffStar=[false,false];qTrap=null;rolling=[false,false];lastItem=[null,null];floorItem=null;
+  advStart=[0,0];
+  if(battle){                                  // まけこしハンデ: 連敗中の側は加点スタート(連敗×10点、最大30点)
+    const M=meta();
+    advStart=[Math.min((M.ls.child||0)*15,45),Math.min((M.ls.parent||0)*15,45)];
+    scores=[advStart[0],advStart[1]];
+  }
+  $("scr-home").classList.add("hidden");$("scr-result").classList.add("hidden");
+  $("scr-quiz").classList.remove("hidden");
+  renderScorebar();showQ();
+  if(battle&&(advStart[0]||advStart[1])){
+    const i=advStart[0]?0:1;
+    $("fb").textContent=`🤝 まけこしハンデ: ${PNAME[i]}チームは +${advStart[i]}点スタート!`;
+    $("fb").className="fb ok";
+  }
+};
+
+function curPlayer(){return battle?(turn===0?"child":"parent"):(sel.player);}
+function renderScorebar(){
+  const prev=[...lastShown];
+  if(battle){
+    $("scorebar").innerHTML=`
+    <div class="pcard ${turn===0?"active":""}" id="pc0"><div class="nm">こどもチーム</div>
+      <span class="sc" id="sc0">${scores[0]}</span> <span class="st">${streaks[0]>=2?streaks[0]+"連続中🔥":""}</span></div>
+    <div class="pcard ${turn===1?"active":""}" id="pc1"><div class="nm">おうちチーム</div>
+      <span class="sc" id="sc1">${scores[1]}</span> <span class="st">${streaks[1]>=2?streaks[1]+"連続中🔥":""}</span></div>`;
+  }else{
+    $("scorebar").innerHTML=`
+    <div class="pcard active" id="pc0"><div class="nm">${sel.player==="child"?"こども":"おうち"} ─ ひとりで特訓</div>
+      <span class="sc" id="sc0">${scores[0]}</span> <span class="st">${streaks[0]>=2?streaks[0]+"連続中🔥":""}</span></div>`;
+  }
+  (battle?[0,1]:[0]).forEach(i=>{
+    const d=scores[i]-prev[i];
+    if(d!==0)animateScore(i,prev[i],scores[i],d);
+    lastShown[i]=scores[i];
+  });
+  renderItembar();
+}
+function animateScore(i,from,to,d){
+  const card=$("pc"+i),num=$("sc"+i);
+  if(!card||!num)return;
+  // 数字ロール(大きい変化ほど長く転がる)
+  const dur=Math.min(900,320+Math.abs(d)*7),t0=performance.now();
+  num.textContent=from;
+  (function tick(now){
+    const p=Math.min(1,(now-t0)/dur),e=1-Math.pow(1-p,3);
+    num.textContent=Math.round(from+(to-from)*e);
+    if(p<1&&num.isConnected)requestAnimationFrame(tick);
+  })(t0);
+  // 飛び出すポップアップ(±40以上は特大)
+  const pop=document.createElement("span");
+  pop.className="scorepop "+(d>0?"plus":"minus")+(Math.abs(d)>=40?" big":"");
+  pop.textContent=(d>0?"+":"")+d;
+  pop.style.right=(10+Math.random()*35)+"px";
+  card.appendChild(pop);
+  setTimeout(()=>pop.remove(),1200);
+  // カードのフラッシュ(+)/シェイク(-)
+  card.classList.add(d>0?"gain":"loss");
+  // 画面中央のダメージ表示(スクロール位置に関係なく必ず見える)
+  const layer=$("fxlayer");
+  const fx=document.createElement("div");
+  fx.className="fxscore "+(d>0?"plus":"minus")+(Math.abs(d)>=40?" big":"");
+  fx.textContent=(battle?PNAME[i]+" ":"")+(d>0?"+":"")+d+"点";
+  fx.style.top=(34+layer.childElementCount*9)+"%";
+  layer.appendChild(fx);
+  setTimeout(()=>fx.remove(),1550);
+}
+
+function showQ(){
+  answered=false;stealing=false;stopTimer();
+  $("stealbox").classList.add("hidden");
+  const q=deck[qi],it=q.it,isJ=it[2]==="j";
+  $("qbadge").textContent=q.sd?"🔥 サドンデス":q.re?"もう一回チャレンジ!":POSNAME[it[2]];
+  $("qbadge").className="badge"+((q.re||q.sd)?" re":"");
+  $("qcount").textContent=`第${qi+1}問 / ${deck.length}問${battle?" ・ "+PNAME[turn]+"の番":""}`;
+  $("qword").textContent=it[0];
+  $("qword").className="word"+(it[0].length>13?" small":"");
+  $("qpos").textContent=isJ?"この熟語の意味は?":"この単語の意味は?";
+  const r=rec(curPlayer(),it[0]);const b=r?r.b:0;
+  $("qdots").innerHTML=[0,1,2,3,4].map(i=>`<i class="${i<b?"f":""}"></i>`).join("");
+  if(battle&&turn===0)RS=[scores[0]-advStart[0],scores[1]-advStart[1]];   // ラウンド頭で実力スコア(ハンデ除く)を凍結
+  if(battle&&!q.sd&&!q.re&&q.m===1){        // 負けてる側ほどチャンス問題を引きやすい
+    const gap=RS[1-turn]-RS[turn];
+    if(gap>=40){const r=Math.random();q.m=r<0.40?3:(r<0.75?2:1);}
+    else if(gap>=20){q.m=Math.random()<0.50?2:1;}
+    else{q.m=Math.random()<0.12?2:1;}
+  }
+  const m=deck[qi].m||1;
+  $("qmult").innerHTML=m===3?'<span class="multbadge final">🔥 ファイナルチャンス 得点3倍!</span>':m===2?'<span class="multbadge">⭐ チャンス問題 得点2倍!</span>':"";
+  document.body.classList.toggle("sdmode",!!q.sd);
+  $("fb").textContent="";$("fb").className="fb";
+  qTrap=null;
+  if(battle&&!q.sd&&trap[turn]){
+    qTrap=trap[turn];trap[turn]=null;
+    if(qTrap==="banana"){$("fb").textContent="🍌 バナナをふんでしまった! この問題の得点は半分…";$("fb").className="fb ng";}
+    if(qTrap==="thunder"){$("fb").textContent="⚡ サンダー攻撃をうけた! この問題は5秒制限!";$("fb").className="fb ng";}
+    if(qTrap==="ink"){$("fb").textContent="🦑 ゲッソーのスミで選択肢がよく見えない…!";$("fb").className="fb ng";}
+  }
+  $("btnNext").classList.add("hidden");
+  const tok=t=>t.replace(/[(（][^)）]*[)）]/g,"").split("・").map(x=>x.trim()).filter(Boolean);
+  const ansTok=new Set(tok(it[1]));
+  const wrongPool=W.filter(x=>x[0]!==it[0]&&(isJ?x[2]==="j":x[2]===it[2])&&x[1]!==it[1]&&!tok(x[1]).some(t=>ansTok.has(t)));
+  const opts=shuffle([it[1],...shuffle(wrongPool).slice(0,3).map(x=>x[1])]);
+  const box=$("choices");box.innerHTML="";box.classList.remove("deink");
+  opts.forEach(opt=>{
+    const b=document.createElement("button");
+    if(qTrap==="ink")b.innerHTML=inkify(opt);
+    else b.textContent=opt;
+    b.onclick=()=>answer(b,opt,it);
+    box.appendChild(b);
+  });
+  miracleActive=false;stealX=1;
+  $("miraclebox").classList.add("hidden");
+  if(battle&&!deck[qi].sd&&!miracle[turn]&&RS[1-turn]-RS[turn]>=20&&scores[1-turn]>scores[turn]){
+    const gap=scores[1-turn]-scores[turn];
+    const sp=10*(deck[qi].m||1)*2;
+    $("miraclebox").classList.remove("hidden");
+    $("miraclebox").innerHTML=`🌟 <b>ミラクルチャンス</b>が使えるよ!(1試合1回)<br>
+    <span class="mnote">正解なら +${gap+20}点 で大ぎゃくてん! はずすと相手のスティールが2倍(${sp}点)…</span><br>
+    <button onclick="useMiracle()">🌟 発動する!</button>`;
+  }
+  speak(it[0]);
+  if(qTrap==="thunder")startTimer(5000);
+  else if(handicap&&curPlayer()==="parent")startTimer();
+  renderItembar();
+}
+$("btnSpeak").onclick=()=>{if(deck[qi])speak(deck[qi].it[0]);};
+
+function sdSound(){
+  try{
+    const ctx=new (window.AudioContext||window.webkitAudioContext)();
+    const thump=t=>{
+      const o=ctx.createOscillator(),g=ctx.createGain();
+      o.type="sine";
+      o.frequency.setValueAtTime(75,ctx.currentTime+t);
+      o.frequency.exponentialRampToValueAtTime(40,ctx.currentTime+t+.16);
+      g.gain.setValueAtTime(.55,ctx.currentTime+t);
+      g.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+t+.26);
+      o.connect(g).connect(ctx.destination);
+      o.start(ctx.currentTime+t);o.stop(ctx.currentTime+t+.3);
+    };
+    thump(0);thump(.32);thump(.85);thump(1.17);   // ドクン…ドクン…
+    const o=ctx.createOscillator(),g=ctx.createGain();  // 緊張の上昇音
+    o.type="sawtooth";
+    o.frequency.setValueAtTime(110,ctx.currentTime+1.55);
+    o.frequency.exponentialRampToValueAtTime(720,ctx.currentTime+2.25);
+    g.gain.setValueAtTime(.07,ctx.currentTime+1.55);
+    g.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+2.35);
+    o.connect(g).connect(ctx.destination);
+    o.start(ctx.currentTime+1.55);o.stop(ctx.currentTime+2.4);
+  }catch(e){}
+}
+const TLIMIT=8000;
+function startTimer(ms){
+  const LIM=ms||TLIMIT;
+  $("timerwrap").classList.remove("hidden");
+  const bar=$("timerbar");bar.style.width="100%";bar.className="";
+  const t0=Date.now();
+  timerId=setInterval(()=>{
+    const left=LIM-(Date.now()-t0);
+    const pct=Math.max(0,left/LIM*100);
+    bar.style.width=pct+"%";
+    if(pct<30)bar.classList.add("low");
+    if(left<=0){stopTimer();if(!answered)handleWrong(null,deck[qi].it,"⏰ 時間切れ!");}
+  },100);
+}
+function stopTimer(){if(timerId){clearInterval(timerId);timerId=null;}$("timerwrap").classList.add("hidden");}
+
+function answer(btn,opt,it){
+  if(stealing){handleSteal(btn,opt,it);return;}
+  if(answered)return;answered=true;stopTimer();
+  $("miraclebox").classList.add("hidden");
+  if(opt===it[1]){
+    revealAnswer(it);
+    const pl=curPlayer(),si=battle?turn:0,m=deck[qi].m||1;
+    streaks[si]++;
+    let picked=null;
+    if(battle&&!deck[qi].sd&&floorItem&&!items[si]){picked=floorItem;items[si]=floorItem;floorItem=null;}
+    let gotBox=battle&&!deck[qi].sd&&streaks[si]>0&&streaks[si]%2===0&&!items[si]&&!rolling[si];
+    let pts,msg;
+    if(miracleActive){
+      pts=miraclePts;msg=`🌟 ミラクル成功!! +${pts}点で大ぎゃくてん!`;
+      if(qTrap==="banana"){pts=Math.ceil(pts/2);msg+=" …だが🍌バナナで半分!";}
+    }else{
+      pts=10*m;msg=`正解! +${pts}点`+(m>1?`(${m}倍!)`:"");
+      if(battle&&!deck[qi].sd){                // おいつきボーナス(負けてる側だけ)
+        const gap=RS[1-turn]-RS[turn];
+        if(gap>=40){pts+=20;msg+=" & おいつきボーナス +20点!🔥";}
+        else if(gap>=20){pts+=10;msg+=" & おいつきボーナス +10点!";}
+      }
+      if(!deck[qi].sd&&streaks[si]%3===0){pts+=10;msg+=" & 3連続ボーナス +10点!🎉";}
+      if(battle&&buffDash[si]){pts+=15;msg+=" & 🍄ダッシュ +15点!";buffDash[si]=false;}
+      if(battle&&buffStar[si]){pts*=2;msg+=" & 🌟スターで2倍!";buffStar[si]=false;}
+      if(qTrap==="banana"){pts=Math.ceil(pts/2);msg+=" …🍌バナナで半分!";}
+    }
+    if(picked)msg+=` & 落ちていた${ITEMS[picked].ic}${ITEMS[picked].nm}を拾った!`;
+    if(gotBox)msg+=" 🎁アイテムボックスGET!";
+    scores[si]+=pts;
+    corr[si]++;xpGain[si]+=(deck[qi].sd?20:10)+(miracleActive?30:0);
+    const r=rec(pl,it[0]);setRec(pl,it[0],(r?r.b:0)+1);
+    $("fb").textContent=msg;$("fb").className="fb ok";
+    if(gotBox)rollItem(si);
+    advance();
+  }else{
+    handleWrong(btn,it,"ざんねん!");
+  }
+}
+function handleWrong(btn,it,prefix){
+  answered=true;stopTimer();
+  $("miraclebox").classList.add("hidden");
+  const pl=curPlayer(),si=battle?turn:0;
+  streaks[si]=0;
+  if(btn){btn.classList.add("ng");btn.disabled=true;}
+  setRec(pl,it[0],0);
+  if(!missed.has(it[0]))missed.set(it[0],it);
+  if(!deck[qi].sd&&!requeued.has(it[0])){   // 少しあとにもう一回出す(記憶の定着)
+    requeued.add(it[0]);
+    const pos=Math.min(qi+4,deck.length);
+    deck.splice(pos,0,{it,re:true,m:1});
+  }
+  const starred=battle&&buffStar[turn];
+  if(battle){buffStar[turn]=false;buffDash[turn]=false;}
+  const behind=battle&&RS[1-turn]-RS[turn]>=20;      // ビハインド側(実力スコア20点差以上)はドロップ免除
+  if(battle&&!deck[qi].sd&&!starred&&!behind&&items[turn]){   // ミスで持ちアイテムを落とす
+    floorItem=items[turn];items[turn]=null;
+    prefix+=` 💦${ITEMS[floorItem].ic}を落とした!`;
+  }
+  const opLeading=battle&&RS[1-turn]>RS[turn];
+  if(battle&&!deck[qi].sd&&(!opLeading||stealX>1)&&!starred){
+    stealing=true;
+    const op=1-turn;
+    [...$("choices").children].forEach(b=>{if(!b.classList.contains("ng")){b.disabled=false;b.classList.add("stealable");}});
+    $("fb").textContent=prefix;$("fb").className="fb ng";
+    $("stealbox").classList.remove("hidden");
+    $("stealbox").innerHTML=`⚡ スティールチャンス! ${PNAME[op]}チーム、正解をうばえ!<br><button onclick="passSteal()">パスする</button>`;
+    renderScorebar();
+  }else{
+    revealAnswer(it);
+    const note=starred?" 🌟スターがミスを守った!(スティールなし)":((battle&&!deck[qi].sd)?" (リード中はスティールできないよ)":"");
+    $("fb").textContent=`${prefix} 正解は「${it[1]}」${note}`;$("fb").className="fb ng";
+    advance();
+  }
+}
+function inkify(t){
+  const esc=t.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+  const n=t.length;
+  if(n<=2)return `<span class="ink">${esc}</span>`;
+  const cover=Math.max(2,Math.round(n*0.45));
+  const start=1+Math.floor(Math.random()*Math.max(1,n-cover-1));
+  return esc.slice(0,start)+'<span class="ink">'+esc.slice(start,start+cover)+'</span>'+esc.slice(start+cover);
+}
+function revealAnswer(it){
+  $("choices").classList.add("deink");   // 正解公開と同時にスミがスーッと消える
+  [...$("choices").children].forEach(b=>{b.disabled=true;b.classList.remove("stealable");if(b.textContent===it[1])b.classList.add("ok");});
+}
+function handleSteal(btn,opt,it){
+  stealing=false;
+  const op=1-turn,opKey=op===0?"child":"parent",m=deck[qi].m||1;
+  revealAnswer(it);
+  $("stealbox").classList.add("hidden");
+  if(opt===it[1]){
+    let pts=10*m*stealX;
+    if(battle&&RS[turn]-RS[op]>=20)pts+=10;   // 負けてる側のよこどりは+10
+    scores[op]+=pts;stealWins[op]++;xpGain[op]+=15;
+    const r=rec(opKey,it[0]);setRec(opKey,it[0],(r?r.b:0)+1);
+    $("fb").textContent=`⚡ スティール成功! ${PNAME[op]}チームが +${pts}点よこどり!${stealX>1?"(ミラクル失敗ペナルティ!)":""}`;
+    $("fb").className="fb ok";
+  }else{
+    if(btn)btn.classList.add("ng");
+    $("fb").textContent=`スティール失敗… 正解は「${it[1]}」`;
+    $("fb").className="fb ng";
+  }
+  advance();
+}
+function passSteal(){
+  if(!stealing)return;
+  stealing=false;
+  const it=deck[qi].it;
+  revealAnswer(it);
+  $("stealbox").classList.add("hidden");
+  $("fb").textContent=`正解は「${it[1]}」`;$("fb").className="fb ng";
+  advance();
+}
+function renderItembar(){
+  const bar=$("itembar");
+  if(!battle){bar.style.display="none";return;}
+  bar.style.display="flex";
+  const chips=[0,1].map(i=>{
+    const it=items[i]?ITEMS[items[i]]:null;
+    const sdq=deck[qi]&&deck[qi].sd;
+    const canUse=i===turn&&it&&!answered&&!stealing&&!rolling[i]&&!sdq&&!miracleActive;
+    const buffs=(buffDash[i]?" 🍄発動中":"")+(buffStar[i]?" 🌟発動中":"");
+    return `<div class="ichip ${i===turn?"on":""}" id="ichip${i}">
+      <span class="iic">${rolling[i]?"❓":(it?it.ic:"➖")}</span>
+      <span class="ids"><b>${PNAME[i]}</b> ${rolling[i]?"🎁 ルーレット中…":(it?it.nm+"「"+it.ds+"」":"アイテムなし")}${buffs}</span>
+      ${canUse?`<button onclick="useItem(${i})">つかう!</button>`:""}
+    </div>`;});
+  const floorChip=floorItem?`<div class="ichip" style="flex:0 0 auto;border-style:solid;border-color:var(--blue);background:var(--blue-bg);color:var(--blue-dk);"><span class="iic">${ITEMS[floorItem].ic}</span><span class="ids"><b>落ちてる!</b><br>次に正解した人がGET</span></div>`:"";
+  bar.innerHTML=chips[0]+floorChip+chips[1];
+}
+function rollItem(si){
+  rolling[si]=true;renderItembar();
+  const g=RS[1-si]-RS[si];   // 負けてる側ほど強いアイテム(マリカ方式)
+  let table=g>=40?[["mush",8],["green",8],["banana",12],["squid",16],["thunder",15],["red",20],["star",21]]
+           :g>=15?[["mush",13],["green",14],["banana",15],["squid",17],["thunder",15],["red",15],["star",11]]
+                 :[["mush",20],["green",20],["banana",17],["squid",15],["thunder",12],["red",9],["star",4]];
+  table=table.map(([k,w])=>[k,k===lastItem[si]?Math.max(1,Math.ceil(w*0.25)):w]);   // 直前と同じアイテムは出にくく
+  const tot=table.reduce((a,b)=>a+b[1],0);
+  let r=Math.random()*tot,pick=table[0][0];
+  for(const[k,w]of table){if((r-=w)<0){pick=k;break;}}
+  const icons=Object.values(ITEMS).map(x=>x.ic);let n=0;
+  const iv=setInterval(()=>{n++;const el=$("ichip"+si);if(el)el.querySelector(".iic").textContent=icons[n%icons.length];},90);
+  setTimeout(()=>{clearInterval(iv);rolling[si]=false;items[si]=pick;lastItem[si]=pick;renderItembar();},1200);
+}
+function useItem(i){
+  const sdq=deck[qi]&&deck[qi].sd;
+  if(i!==turn||!items[i]||answered||stealing||rolling[i]||sdq||miracleActive)return;
+  const k=items[i];items[i]=null;
+  const op=1-i;
+  if(k==="mush"){buffDash[i]=true;fbmsg(`🍄 ダッシュキノコ! この問題の正解に +15点!`);}
+  else if(k==="star"){buffStar[i]=true;fbmsg(`🌟 スター発動! この問題は得点2倍&ミスしても盗まれない!`);}
+  else if(k==="green"){scores[op]=Math.max(0,scores[op]-10);const b=streaks[op]>0;streaks[op]=0;fbmsg(`🐢 ミドリこうらが命中! ${PNAME[op]}チーム -10点${b?" & 連続記録ストップ":""}!`);}
+  else if(k==="red"){scores[op]=Math.max(0,scores[op]-25);const b=streaks[op]>0;streaks[op]=0;fbmsg(`🎯 アカこうらが命中!! ${PNAME[op]}チーム -25点${b?" & 連続記録ストップ":""}!`);}
+  else if(k==="banana"){trap[op]="banana";fbmsg(`🍌 バナナを相手の道にしかけた…(相手の次の問題の得点が半分に)`);}
+  else if(k==="squid"){trap[op]="ink";fbmsg(`🦑 ゲッソーを放った! 相手の次の問題はスミまみれ!`);}
+  else if(k==="thunder"){trap[op]="thunder";fbmsg(`⚡ サンダーを相手にしかけた…(相手の次の問題は5秒制限!)`);}
+  xpGain[i]+=5;
+  renderScorebar();
+}
+function fbmsg(t){$("fb").textContent=t;$("fb").className="fb ok";}
+function useMiracle(){
+  if(!battle||miracle[turn]||answered||stealing)return;
+  miracle[turn]=true;miracleActive=true;
+  miraclePts=(scores[1-turn]-scores[turn])+20;
+  stealX=2;
+  $("miraclebox").classList.add("hidden");
+  $("qmult").innerHTML=`<span class="multbadge final">🌟 ミラクル発動中! 正解で +${miraclePts}点!</span>`;
+}
+function advance(){
+  miracleActive=false;stealX=1;
+  renderScorebar();
+  if(qi<deck.length-1)$("btnNext").classList.remove("hidden");
+  else if(battle&&scores[0]===scores[1])startSudden();
+  else finish();
+}
+function startSudden(){
+  sdRound++;
+  const used=new Set(deck.map(q=>q.it[0]));
+  const pool=catPool().filter(x=>!used.has(x[0]));
+  const rand=()=>W[Math.floor(Math.random()*W.length)];
+  const k1=(1-turn)===0?"child":"parent";   // 次に答える人
+  const k2=turn===0?"child":"parent";
+  const p1=pickWeighted(pool,k1,1)[0]||pool[0]||rand();
+  const pool2=pool.filter(x=>x!==p1);
+  const p2=pickWeighted(pool2,k2,1)[0]||pool2[0]||rand();
+  deck.push({it:p1,re:false,m:1,sd:true},{it:p2,re:false,m:1,sd:true});
+  $("sdroundlbl").textContent="ROUND "+sdRound;
+  $("sdfx").classList.remove("hidden");
+  sdSound();
+  setTimeout(()=>{
+    $("sdfx").classList.add("hidden");
+    qi++;turn=1-turn;renderScorebar();showQ();   // 演出明けに自動で1問目へ
+  },2700);
+}
+$("btnNext").onclick=()=>{qi++;if(battle)turn=1-turn;renderScorebar();showQ();};
+$("btnQuit").onclick=()=>{document.body.classList.remove("sdmode");$("sdfx").classList.add("hidden");stopTimer();speechSynthesis.cancel&&speechSynthesis.cancel();$("scr-quiz").classList.add("hidden");$("scr-home").classList.remove("hidden");renderStats();};
+
+function finish(){
+  document.body.classList.remove("sdmode");
+  const M=meta();
+  const keys=battle?["child","parent"]:[sel.player];
+  const oldLv=keys.map(k=>level(M.xp[k]||0));
+  if(battle){
+    const wk=scores[0]>scores[1]?"child":"parent";
+    const lk=wk==="child"?"parent":"child";
+    M.ls[wk]=0;M.ls[lk]=(M.ls[lk]||0)+1;
+  }
+  keys.forEach((k,i)=>{M.xp[k]=(M.xp[k]||0)+xpGain[i];});
+  const newLv=keys.map(k=>level(M.xp[k]||0));
+  saveProgress();
+  $("scr-quiz").classList.add("hidden");$("scr-result").classList.remove("hidden");
+  let head;
+  if(battle){
+    const w=scores[0]>scores[1]?"こどもチームの勝ち!🏆":scores[1]>scores[0]?"おうちチームの勝ち!🏆":"引き分け!🤝";
+    head=`<div class="t">${w}</div><div class="d">こども ${scores[0]}点 / おうち ${scores[1]}点</div>`;
+    if(stealWins[0]||stealWins[1])head+=`<div class="d">⚡ スティール成功: こども${stealWins[0]}回 / おうち${stealWins[1]}回</div>`;
+    if(sdRound)head+=`<div class="d">🔥 サドンデス${sdRound}ラウンドの死闘!</div>`;
+    head+=`<div class="d">🌱 けいけんち: こども +${xpGain[0]}XP / おうち +${xpGain[1]}XP</div>`;
+    const li=scores[0]>scores[1]?1:0;
+    const margin=Math.abs(scores[0]-scores[1]);
+    head+=`<div class="d" style="margin-top:6px;">${PNAME[li]}チームも${corr[li]}問正解で着実にレベルアップ中!${margin<=20?" あと一歩だった…!!":""}</div>`;
+  }else{
+    head=`<div class="t">おつかれさま!🎉</div><div class="d">スコア ${scores[0]}点 / 🌱 +${xpGain[0]}XP</div>`;
+  }
+  keys.forEach((k,i)=>{
+    if(newLv[i]>oldLv[i])head+=`<div class="d" style="color:var(--amber-dk);font-weight:700;margin-top:6px;">🎉 ${battle?PNAME[i]+"が":""}Lv.${newLv[i]}「${title(newLv[i])}」にレベルアップ!</div>`;
+  });
+  $("resultBox").innerHTML=head;
+  let html="";
+  if(missed.size){
+    html+=`<b style="font-size:15px;">📖 今日まちがえた単語(${missed.size}語)</b>
+    <div class="note" style="margin:2px 0 6px;">次に遊ぶとき、この単語が優先して出てきます。声に出して読んでみよう。</div>`;
+    missed.forEach(it=>{
+      html+=`<div class="rvrow"><b>${it[0]}</b><span>${it[1]}</span><button class="sbtn" onclick="speak('${it[0].replace(/'/g,"\\'")}')">🔊</button></div>`;
+    });
+  }else{
+    html+=`<div style="text-align:center;color:var(--green-dk);font-weight:700;">⭐ 全問正解! 復習する単語はありません</div>`;
+  }
+  $("reviewBox").innerHTML=html;
+}
+$("btnAgain").onclick=()=>{$("scr-result").classList.add("hidden");$("btnStart").click();};
+$("btnHome").onclick=()=>{$("scr-result").classList.add("hidden");$("scr-home").classList.remove("hidden");renderStats();};
+
+loadProgress().then(renderStats);
+</script>
+</body>
+</html>
