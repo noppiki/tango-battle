@@ -190,7 +190,7 @@ export function createUI({ srs, words, audio }) {
       const it = s.items[i] ? ITEMS[s.items[i]] : null;
       const sdq = s.deck[s.qi] && s.deck[s.qi].sd;
       const canUse = i === s.turn && it && !s.answered && !s.stealing && !s.rolling[i] && !sdq && !s.miracleActive;
-      const buffs = (s.buffDash[i] ? ' 🍄発動中' : '') + (s.buffStar[i] ? ' 🌟発動中' : '');
+      const buffs = (s.buffDash[i] ? ' 🍬発動中' : '') + (s.buffStar[i] ? ' ✨発動中' : '');
       return `<div class="ichip ${i === s.turn ? 'on' : ''}" id="ichip${i}">
       <span class="iic">${s.rolling[i] ? '❓' : it ? it.ic : '➖'}</span>
       <span class="ids"><b>${B.PNAME[i]}</b> ${s.rolling[i] ? '🎁 ルーレット中…' : it ? it.nm + '「' + it.ds + '」' : 'アイテムなし'}${buffs}</span>

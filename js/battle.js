@@ -241,9 +241,9 @@ export function createBattle({ rng = Math.random, ui, audio, srs, words }) {
     if (s.isBattle && !q.sd && s.trap[s.turn]) {
       s.qTrap = s.trap[s.turn];
       s.trap[s.turn] = null;
-      if (s.qTrap === 'banana') fb = { text: '🍌 バナナをふんでしまった! この問題の得点は半分…', cls: 'ng' };
-      if (s.qTrap === 'thunder') fb = { text: '⚡ サンダー攻撃をうけた! この問題は5秒制限!', cls: 'ng' };
-      if (s.qTrap === 'ink') fb = { text: '🦑 ゲッソーのスミで選択肢がよく見えない…!', cls: 'ng' };
+      if (s.qTrap === 'banana') fb = { text: '🫠 ぬるぬるスライムですべっちゃった! この問題の得点は半分…', cls: 'ng' };
+      if (s.qTrap === 'thunder') fb = { text: '⚡ ビリビリをうけた! この問題は5秒制限!', cls: 'ng' };
+      if (s.qTrap === 'ink') fb = { text: '⚫ まっくろスミで選択肢がよく見えない…!', cls: 'ng' };
     }
 
     // build answer options (exclude synonyms that share a meaning token)
@@ -338,7 +338,7 @@ export function createBattle({ rng = Math.random, ui, audio, srs, words }) {
         msg = `🌟 ミラクル成功!! +${pts}点で大ぎゃくてん!`;
         if (s.qTrap === 'banana') {
           pts = Math.ceil(pts / 2);
-          msg += ' …だが🍌バナナで半分!';
+          msg += ' …だが🫠ぬるぬるスライムで半分!';
         }
       } else {
         pts = BASE * m;
@@ -361,17 +361,17 @@ export function createBattle({ rng = Math.random, ui, audio, srs, words }) {
         }
         if (s.isBattle && s.buffDash[si]) {
           pts += MUSH_BONUS;
-          msg += ' & 🍄ダッシュ +15点!';
+          msg += ' & 🍬パワーグミ +15点!';
           s.buffDash[si] = false;
         }
         if (s.isBattle && s.buffStar[si]) {
           pts *= 2;
-          msg += ' & 🌟スターで2倍!';
+          msg += ' & ✨キラキラおまもりで2倍!';
           s.buffStar[si] = false;
         }
         if (s.qTrap === 'banana') {
           pts = Math.ceil(pts / 2);
-          msg += ' …🍌バナナで半分!';
+          msg += ' …🫠ぬるぬるスライムで半分!';
         }
       }
       if (picked) msg += ` & 落ちていた${ITEMS[picked].ic}${ITEMS[picked].nm}を拾った!`;
@@ -430,7 +430,7 @@ export function createBattle({ rng = Math.random, ui, audio, srs, words }) {
     } else {
       ui.revealAnswer(it);
       const note = starred
-        ? ' 🌟スターがミスを守った!(スティールなし)'
+        ? ' ✨キラキラおまもりがミスを守った!(スティールなし)'
         : s.isBattle && !s.deck[s.qi].sd
           ? ' (リード中はスティールできないよ)'
           : '';
@@ -500,29 +500,29 @@ export function createBattle({ rng = Math.random, ui, audio, srs, words }) {
     const op = 1 - i;
     if (k === 'mush') {
       s.buffDash[i] = true;
-      ui.setFb('🍄 ダッシュキノコ! この問題の正解に +15点!', 'ok');
+      ui.setFb('🍬 パワーグミ! この問題の正解に +15点!', 'ok');
     } else if (k === 'star') {
       s.buffStar[i] = true;
-      ui.setFb('🌟 スター発動! この問題は得点2倍&ミスしても盗まれない!', 'ok');
+      ui.setFb('✨ キラキラおまもり発動! この問題は得点2倍&ミスしても盗まれない!', 'ok');
     } else if (k === 'green') {
       s.scores[op] = Math.max(0, s.scores[op] - GREEN_DAMAGE);
       const b = s.streaks[op] > 0;
       s.streaks[op] = 0;
-      ui.setFb(`🐢 ミドリこうらが命中! ${PNAME[op]}チーム -10点${b ? ' & 連続記録ストップ' : ''}!`, 'ok');
+      ui.setFb(`🚀 ちびロケットが命中! ${PNAME[op]}チーム -10点${b ? ' & 連続記録ストップ' : ''}!`, 'ok');
     } else if (k === 'red') {
       s.scores[op] = Math.max(0, s.scores[op] - RED_DAMAGE);
       const b = s.streaks[op] > 0;
       s.streaks[op] = 0;
-      ui.setFb(`🎯 アカこうらが命中!! ${PNAME[op]}チーム -25点${b ? ' & 連続記録ストップ' : ''}!`, 'ok');
+      ui.setFb(`💥 でかロケットが命中!! ${PNAME[op]}チーム -25点${b ? ' & 連続記録ストップ' : ''}!`, 'ok');
     } else if (k === 'banana') {
       s.trap[op] = 'banana';
-      ui.setFb('🍌 バナナを相手の道にしかけた…(相手の次の問題の得点が半分に)', 'ok');
+      ui.setFb('🫠 ぬるぬるスライムを相手の道にしかけた…(相手の次の問題の得点が半分に)', 'ok');
     } else if (k === 'squid') {
       s.trap[op] = 'ink';
-      ui.setFb('🦑 ゲッソーを放った! 相手の次の問題はスミまみれ!', 'ok');
+      ui.setFb('⚫ まっくろスミを投げた! 相手の次の問題はスミまみれ!', 'ok');
     } else if (k === 'thunder') {
       s.trap[op] = 'thunder';
-      ui.setFb('⚡ サンダーを相手にしかけた…(相手の次の問題は5秒制限!)', 'ok');
+      ui.setFb('⚡ ビリビリを相手にしかけた…(相手の次の問題は5秒制限!)', 'ok');
     }
     const itemSfx = { thunder: 'item_thunder', banana: 'item_banana', squid: 'item_ink' };
     audio.sfx?.(itemSfx[k] || 'item_use');

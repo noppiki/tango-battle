@@ -1,16 +1,16 @@
-// Battle items: 7 kinds, plus the Mario-Kart-style rubber-band roll table
+// Battle items: 7 kinds, plus the rubber-band roll table
 // (stronger items when further behind) with a 1/4 weight on the previously
 // rolled item to avoid repeats. Roll selection is pure and RNG-injectable; the
 // roulette animation and state mutation happen in the battle/ui layers.
 
 export const ITEMS = {
-  mush: { ic: '🍄', nm: 'ダッシュキノコ', ds: 'この問題の正解 +15点' },
-  green: { ic: '🐢', nm: 'ミドリこうら', ds: '相手 -10点&連続記録リセット' },
-  banana: { ic: '🍌', nm: 'バナナ', ds: '相手の次の問題の得点を半分に' },
-  thunder: { ic: '⚡', nm: 'サンダー', ds: '相手の次の問題を5秒制限に' },
-  red: { ic: '🎯', nm: 'アカこうら', ds: '相手 -25点&連続記録リセット' },
-  squid: { ic: '🦑', nm: 'ゲッソー', ds: '相手の次の問題の選択肢をスミまみれに' },
-  star: { ic: '🌟', nm: 'スター', ds: 'この問題 得点2倍&ミスしても盗まれない' },
+  mush: { ic: '🍬', nm: 'パワーグミ', ds: 'この問題の正解 +15点' },
+  green: { ic: '🚀', nm: 'ちびロケット', ds: '相手 -10点&連続記録リセット' },
+  banana: { ic: '🫠', nm: 'ぬるぬるスライム', ds: '相手の次の問題の得点を半分に' },
+  thunder: { ic: '⚡', nm: 'ビリビリ', ds: '相手の次の問題を5秒制限に' },
+  red: { ic: '💥', nm: 'でかロケット', ds: '相手 -25点&連続記録リセット' },
+  squid: { ic: '⚫', nm: 'まっくろスミ', ds: '相手の次の問題の選択肢をスミまみれに' },
+  star: { ic: '✨', nm: 'キラキラおまもり', ds: 'この問題 得点2倍&ミスしても盗まれない' },
 };
 
 // Item points bonuses baked into scoring (kept here as item data).
