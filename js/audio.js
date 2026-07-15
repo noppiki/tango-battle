@@ -195,6 +195,7 @@ export function createAudio() {
   function setMuted(next) {
     muted = !!next;
     if (master) master.gain.setTargetAtTime(muted ? 0 : 1, ctx.currentTime, 0.02);
+    if (muted && hasSpeech) window.speechSynthesis.cancel();
   }
   function isMuted() {
     return muted;
@@ -208,6 +209,7 @@ export function createAudio() {
   }
 
   function speak(text) {
+    if (muted) return;
     if (!hasSpeech) return;
     window.speechSynthesis.cancel();
     const t = text
