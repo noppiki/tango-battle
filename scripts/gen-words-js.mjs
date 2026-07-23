@@ -16,7 +16,14 @@ if (!Array.isArray(words)) {
   throw new Error('data/words.json is not an array');
 }
 
-const banner = '// AUTO-GENERATED from data/words.json by scripts/gen-words-js.mjs. Do not edit by hand.\n';
+const banner =
+  '// AUTO-GENERATED from data/words.json by scripts/gen-words-js.mjs. Do not edit by hand.\n' +
+  '//\n' +
+  '// Entry shape: ["word","意味","pos","grade"], pos in v|n|a|d|c|j, grade in g5|g4|g3|p2.\n' +
+  '// grade is a curriculum-aligned estimate (中学英語範囲準拠の推定), not an official\n' +
+  '// word list from any certifying body -- each word is graded at the lowest level it\n' +
+  '// is commonly taught. See claudedocs/port-report.md for the merge/provenance detail\n' +
+  '// (scripts/port-graded-words.mjs, 2026-07-23).\n';
 const body = `window.WORDS=${JSON.stringify(words)};\n`;
 writeFileSync(jsPath, banner + body);
 console.log(`wrote data/words.js (${words.length} entries)`);
