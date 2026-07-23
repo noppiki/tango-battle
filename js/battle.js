@@ -45,7 +45,7 @@ import {
   XP_ITEM_USE,
   POSNAME,
 } from './balance.js';
-import { shuffle, filterByCat } from './srs.js';
+import { shuffle, buildWordPool } from './srs.js';
 import { ITEMS, MUSH_BONUS, GREEN_DAMAGE, RED_DAMAGE, pickItem } from './items.js';
 
 const PNAME = ['こども', 'おうち'];
@@ -53,7 +53,7 @@ const PNAME = ['こども', 'おうち'];
 export function createBattle({ rng = Math.random, ui, audio, srs, words }) {
   // --- game state ---
   const s = {
-    sel: { player: 'child', cat: 'w', mode: 'normal', handi: 'off', len: '16' },
+    sel: { player: 'child', cat: 'w', mode: 'normal', handi: 'off', len: '16', grade: 'p2' },
     deck: [],
     qi: 0,
     turn: 0,
@@ -117,7 +117,7 @@ export function createBattle({ rng = Math.random, ui, audio, srs, words }) {
   function start(sel) {
     s.sel = sel;
     s.isBattle = sel.player === 'battle';
-    let pool = filterByCat(words, sel.cat);
+    let pool = buildWordPool(words, sel.cat, sel.grade || 'p2');
     const basePl = s.isBattle ? 'child' : sel.player;
     if (sel.mode === 'weak') {
       pool = pool.filter((it) => {
@@ -560,7 +560,7 @@ export function createBattle({ rng = Math.random, ui, audio, srs, words }) {
   function startSudden() {
     s.sdRound++;
     const used = new Set(s.deck.map((q) => q.it[0]));
-    const pool = filterByCat(words, s.sel.cat).filter((x) => !used.has(x[0]));
+    const pool = buildWordPool(words, s.sel.cat, s.sel.grade || 'p2').filter((x) => !used.has(x[0]));
     const rand = () => words[Math.floor(rng() * words.length)];
     const k1 = 1 - s.turn === 0 ? 'child' : 'parent'; // next to answer
     const k2 = s.turn === 0 ? 'child' : 'parent';

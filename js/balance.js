@@ -6,6 +6,12 @@
 // --- Storage ---
 export const PROGRESS_KEY = 'eiken-p2-progress-v1';
 
+// --- Grade levels (g5/g4/g3/p2) ---
+export const GRADES = ['g5', 'g4', 'g3', 'p2'];
+export const DEFAULT_GRADE = 'p2';
+export const GRADE_LABEL = { g5: '5級', g4: '4級', g3: '3級', p2: '準2級' };
+export const GRADE_BADGE = { g5: 'G5 LEVEL', g4: 'G4 LEVEL', g3: 'G3 LEVEL', p2: 'Pre-2 LEVEL' };
+
 // --- Part-of-speech display names (v/n/a/d/c/j) ---
 export const POSNAME = {
   v: '動詞',

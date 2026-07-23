@@ -3,7 +3,7 @@
 // page is opened directly over file://) we fall back to injecting data/words.js
 // which sets window.WORDS.
 
-import { PROGRESS_KEY } from './balance.js';
+import { PROGRESS_KEY, GRADES } from './balance.js';
 import { createStorage } from './storage.js';
 import { createSrs } from './srs.js';
 import { createAudio } from './audio.js';
@@ -42,10 +42,34 @@ async function main() {
   const settingsStore = createStorage(SETTINGS_KEY);
   const srs = createSrs(storage);
   const audio = createAudio();
-  const ui = createUI({ srs, words, audio });
+  const ui = createUI({
+    srs,
+    words,
+    audio,
+    onSettingsChange: (patch) => saveSettings(patch),
+  });
   const battle = createBattle({ ui, audio, srs, words });
 
   ui.initHome();
+
+  async function loadSettings() {
+    try {
+      const raw = await settingsStore.get();
+      if (!raw) return {};
+      return JSON.parse(raw);
+    } catch (e) {
+      return {};
+    }
+  }
+
+  async function saveSettings(patch) {
+    const cur = await loadSettings();
+    try {
+      await settingsStore.set(JSON.stringify({ ...cur, ...patch }));
+    } catch (e) {
+      // persistence unavailable (memory tier)
+    }
+  }
 
   function startGame() {
     const r = battle.start(ui.getSel());
@@ -71,25 +95,15 @@ async function main() {
     btnMute.classList.toggle('muted', audio.isMuted());
     btnMute.setAttribute('aria-pressed', String(audio.isMuted()));
   }
-  try {
-    const raw = await settingsStore.get();
-    if (raw) {
-      const parsed = JSON.parse(raw);
-      if (parsed && typeof parsed.muted === 'boolean') audio.setMuted(parsed.muted);
-    }
-  } catch (e) {
-    // corrupt/unreadable settings -> default to unmuted
-  }
+  const settings = await loadSettings();
+  if (typeof settings.muted === 'boolean') audio.setMuted(settings.muted);
+  if (GRADES.includes(settings.grade)) ui.applyGrade(settings.grade);
   paintMute();
   if (btnMute) {
     btnMute.onclick = async () => {
       audio.setMuted(!audio.isMuted());
       paintMute();
-      try {
-        await settingsStore.set(JSON.stringify({ muted: audio.isMuted() }));
-      } catch (e) {
-        // persistence unavailable (memory tier) -> mute still applies this session
-      }
+      await saveSettings({ muted: audio.isMuted() });
     };
   }
 

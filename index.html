@@ -14,7 +14,7 @@
 </head>
 <body>
 <div class="wrap">
-  <h1><img class="emblem" src="icons/icon-192.png" alt="">単語バトル <span class="en">Pre-2 LEVEL</span>
+  <h1><img class="emblem" src="icons/icon-192.png" alt="">単語バトル <span class="en" id="levelBadge">Pre-2 LEVEL</span>
     <button id="btnMute" class="mutebtn" type="button" aria-label="音のオン・オフ" aria-pressed="false"><img id="muteIcon" src="img/ui/spk_on.png" alt=""></button>
   </h1>
   <div class="sub">まちがえた単語は少しあとにもう一回出る「くり返し方式」。何日かあけて遊ぶと、忘れかけた単語から優先して出題されます。</div>
@@ -26,6 +26,13 @@
         <button data-v="child" class="on">こども</button>
         <button data-v="parent">おうち</button>
         <button data-v="battle">親子で対戦</button>
+      </div>
+      <label class="fl">レベル</label>
+      <div class="seg" id="selGrade">
+        <button data-v="g5">5級</button>
+        <button data-v="g4">4級</button>
+        <button data-v="g3">3級</button>
+        <button data-v="p2" class="on">準2級</button>
       </div>
       <label class="fl">出題はんい</label>
       <div class="seg" id="selCat">

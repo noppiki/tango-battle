@@ -45,6 +45,25 @@ export function filterByCat(words, cat) {
   return words;
 }
 
+// Grade field index on 4-tuples; legacy entries without grade default to p2.
+function wordGrade(it) {
+  return it[3] || 'p2';
+}
+
+export function filterByGrade(words, grade) {
+  return words.filter((x) => wordGrade(x) === grade);
+}
+
+// Session word pool: grade first, then category. At non-p2 grades, 熟語 (pos=j) are
+// excluded even when cat is "all" (ぜんぶ = 単語 only below 準2級).
+export function buildWordPool(words, cat, grade) {
+  let pool = filterByGrade(words, grade);
+  if (cat === 'w') return pool.filter((x) => x[2] !== 'j');
+  if (cat === 'j') return pool.filter((x) => x[2] === 'j');
+  if (grade !== 'p2') return pool.filter((x) => x[2] !== 'j');
+  return pool;
+}
+
 // createSrs(storage) -> progress-bound engine instance.
 export function createSrs(storage) {
   let progress = { child: {}, parent: {} };

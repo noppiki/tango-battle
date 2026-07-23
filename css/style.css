@@ -236,6 +236,16 @@ button.primary:active {
   text-shadow: none;
 }
 .seg button.on:hover { color: var(--bg); }
+.seg button:disabled {
+  opacity: 0.42;
+  cursor: not-allowed;
+  color: var(--sub);
+  background: var(--panel);
+  border-color: var(--line) var(--depth) var(--depth) var(--line);
+  box-shadow: 2px 2px 0 var(--depth);
+  text-shadow: none;
+}
+.seg button:disabled:hover { color: var(--sub); }
 
 label.fl {
   display: block;
