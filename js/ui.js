@@ -7,6 +7,8 @@
 import { POSNAME, GRADES, DEFAULT_GRADE, GRADE_BADGE } from './balance.js';
 import { ITEMS, EMPTY_ITEM_IMG } from './items.js';
 import { buildWordPool } from './srs.js';
+import { canSelectGrade } from './entitlements.js';
+import { isKidsBuild } from './platform.js';
 
 const $ = (id) => document.getElementById(id);
 
@@ -43,8 +45,8 @@ function avatarImg(side) {
   return `<img class="pav" src="${UI_SPRITES['avatar_' + side]}" alt="${alt}">`;
 }
 
-// createUI({ srs, words, audio, onSettingsChange }) -> ui adapter used by the battle engine + main.
-export function createUI({ srs, words, audio, onSettingsChange }) {
+// createUI({ srs, words, audio, onSettingsChange, paywall }) -> ui adapter used by the battle engine + main.
+export function createUI({ srs, words, audio, onSettingsChange, paywall }) {
   let sel = { player: 'child', cat: 'w', mode: 'normal', handi: 'off', len: '16', grade: DEFAULT_GRADE };
 
   function updateLevelBadge() {
@@ -69,6 +71,49 @@ export function createUI({ srs, words, audio, onSettingsChange }) {
     if (onSettingsChange) onSettingsChange({ grade: sel.grade });
   }
 
+  function syncGradeLockBadges() {
+    const seg = $('selGrade');
+    if (!seg || !isKidsBuild()) return;
+    seg.querySelectorAll('button').forEach((b) => {
+      const grade = b.dataset.v;
+      const locked = !canSelectGrade(grade);
+      b.classList.toggle('grade-locked', locked);
+      const existing = b.querySelector('.grade-lock-badge');
+      if (locked) {
+        if (!existing) {
+          const badge = document.createElement('span');
+          badge.className = 'grade-lock-badge';
+          badge.setAttribute('aria-hidden', 'true');
+          badge.textContent = '🔒';
+          b.prepend(badge);
+        }
+      } else if (existing) {
+        existing.remove();
+      }
+    });
+  }
+
+  function trySetGrade(grade, { showPaywall = true } = {}) {
+    if (!GRADES.includes(grade)) return false;
+    if (!canSelectGrade(grade)) {
+      if (showPaywall && paywall) paywall.showLockedGradeModal(grade);
+      return false;
+    }
+    sel.grade = grade;
+    const seg = $('selGrade');
+    if (seg) {
+      seg.querySelectorAll('button').forEach((b) => {
+        b.classList.toggle('on', b.dataset.v === grade);
+      });
+    }
+    syncJukugoForGrade();
+    updateLevelBadge();
+    syncGradeLockBadges();
+    notifySettings();
+    renderStats();
+    return true;
+  }
+
   // ---------- home screen ----------
   function segInit(id, key) {
     $(id)
@@ -76,16 +121,20 @@ export function createUI({ srs, words, audio, onSettingsChange }) {
       .forEach((b) => {
         b.onclick = () => {
           if (b.disabled) return;
+          if (key === 'grade') {
+            const grade = b.dataset.v;
+            if (!canSelectGrade(grade)) {
+              if (paywall) paywall.showLockedGradeModal(grade);
+              return;
+            }
+            trySetGrade(grade, { showPaywall: false });
+            return;
+          }
           $(id)
             .querySelectorAll('button')
             .forEach((x) => x.classList.remove('on'));
           b.classList.add('on');
           sel[key] = b.dataset.v;
-          if (key === 'grade') {
-            syncJukugoForGrade();
-            updateLevelBadge();
-            notifySettings();
-          }
           renderStats();
         };
       });
@@ -100,10 +149,12 @@ export function createUI({ srs, words, audio, onSettingsChange }) {
     segInit('selLen', 'len');
     syncJukugoForGrade();
     updateLevelBadge();
+    syncGradeLockBadges();
   }
 
   function applyGrade(grade) {
     if (!GRADES.includes(grade)) return;
+    if (!canSelectGrade(grade)) return;
     sel.grade = grade;
     const seg = $('selGrade');
     if (seg) {
@@ -113,6 +164,15 @@ export function createUI({ srs, words, audio, onSettingsChange }) {
     }
     syncJukugoForGrade();
     updateLevelBadge();
+    syncGradeLockBadges();
+  }
+
+  function refreshGradeSeg() {
+    syncGradeLockBadges();
+    if (!canSelectGrade(sel.grade)) {
+      const fallback = GRADES.find((g) => canSelectGrade(g)) || DEFAULT_GRADE;
+      trySetGrade(fallback, { showPaywall: false });
+    }
   }
 
   function getSel() {
@@ -491,6 +551,8 @@ export function createUI({ srs, words, audio, onSettingsChange }) {
   return {
     initHome,
     applyGrade,
+    trySetGrade,
+    refreshGradeSeg,
     getSel,
     renderStats,
     clearSdMode,

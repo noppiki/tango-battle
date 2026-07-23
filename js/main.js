@@ -3,12 +3,15 @@
 // page is opened directly over file://) we fall back to injecting data/words.js
 // which sets window.WORDS.
 
-import { PROGRESS_KEY, GRADES } from './balance.js';
+import { PROGRESS_KEY, GRADES, DEFAULT_GRADE } from './balance.js';
 import { createStorage } from './storage.js';
 import { createSrs } from './srs.js';
 import { createAudio } from './audio.js';
 import { createUI } from './ui.js';
 import { createBattle } from './battle.js';
+import { isNative } from './platform.js';
+import * as entitlements from './entitlements.js';
+import { createPaywallUI } from './paywall-ui.js';
 
 const $ = (id) => document.getElementById(id);
 
@@ -36,17 +39,33 @@ async function loadWords() {
   });
 }
 
+async function initEntitlements() {
+  if (isNative()) {
+    // Phase ③: dynamic import('./revenuecat.js') and setProvider(RevenueCatProvider)
+    entitlements.setProvider(entitlements.createNativeFallbackProvider());
+  } else {
+    const { WebUnlockedProvider } = await import('./entitlements-mock.js');
+    entitlements.setProvider(WebUnlockedProvider);
+  }
+}
+
 async function main() {
   const words = await loadWords();
+  await initEntitlements();
   const storage = createStorage(PROGRESS_KEY);
   const settingsStore = createStorage(SETTINGS_KEY);
   const srs = createSrs(storage);
   const audio = createAudio();
-  const ui = createUI({
+  let ui;
+  const paywall = createPaywallUI({
+    onUnlock: () => ui?.refreshGradeSeg(),
+  });
+  ui = createUI({
     srs,
     words,
     audio,
     onSettingsChange: (patch) => saveSettings(patch),
+    paywall,
   });
   const battle = createBattle({ ui, audio, srs, words });
 
@@ -72,7 +91,13 @@ async function main() {
   }
 
   function startGame() {
-    const r = battle.start(ui.getSel());
+    const sel = ui.getSel();
+    if (!entitlements.canSelectGrade(sel.grade)) {
+      const fallback = GRADES.find((g) => entitlements.canSelectGrade(g)) || 'g5';
+      ui.trySetGrade(fallback);
+      return;
+    }
+    const r = battle.start(sel);
     if (r && r.error) alert(r.error);
   }
 
@@ -97,7 +122,13 @@ async function main() {
   }
   const settings = await loadSettings();
   if (typeof settings.muted === 'boolean') audio.setMuted(settings.muted);
-  if (GRADES.includes(settings.grade)) ui.applyGrade(settings.grade);
+  const savedGrade = GRADES.includes(settings.grade) ? settings.grade : DEFAULT_GRADE;
+  if (entitlements.canSelectGrade(savedGrade)) {
+    ui.applyGrade(savedGrade);
+  } else {
+    const fallback = GRADES.find((g) => entitlements.canSelectGrade(g)) || 'g5';
+    ui.applyGrade(fallback);
+  }
   paintMute();
   if (btnMute) {
     btnMute.onclick = async () => {

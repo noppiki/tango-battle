@@ -1,4 +1,4 @@
-const CACHE_VERSION = "v6";
+const CACHE_VERSION = "v7";
 const CACHE_NAME = `tango-battle-shell-${CACHE_VERSION}`;
 
 const APP_SHELL = [
@@ -11,6 +11,10 @@ const APP_SHELL = [
   "./js/items.js",
   "./js/battle.js",
   "./js/ui.js",
+  "./js/platform.js",
+  "./js/entitlements.js",
+  "./js/entitlements-mock.js",
+  "./js/paywall-ui.js",
   "./js/main.js",
   "./data/words.json",
   "./data/words.js",
