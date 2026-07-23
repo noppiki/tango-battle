@@ -41,8 +41,13 @@ async function loadWords() {
 
 async function initEntitlements() {
   if (isNative()) {
-    // Phase ③: dynamic import('./revenuecat.js') and setProvider(RevenueCatProvider)
-    entitlements.setProvider(entitlements.createNativeFallbackProvider());
+    try {
+      const { RevenueCatProvider } = await import('./revenuecat.js');
+      await RevenueCatProvider.init();
+      entitlements.setProvider(RevenueCatProvider);
+    } catch {
+      entitlements.setProvider(entitlements.createNativeFallbackProvider());
+    }
   } else {
     const { WebUnlockedProvider } = await import('./entitlements-mock.js');
     entitlements.setProvider(WebUnlockedProvider);
