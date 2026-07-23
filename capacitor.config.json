@@ -1,0 +1,6 @@
+{
+  "appId": "com.noppiki.tangobattle",
+  "appName": "単語バトル",
+  "webDir": "www",
+  "bundledWebRuntime": false
+}

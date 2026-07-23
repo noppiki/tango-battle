@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">単語バトル</string>
+    <string name="title_activity_main">単語バトル</string>
+    <string name="package_name">com.noppiki.tangobattle</string>
+    <string name="custom_url_scheme">com.noppiki.tangobattle</string>
+</resources>
