@@ -54,6 +54,12 @@
 
   --font-jp: "DotGothic16", "system-ui", "Hiragino Kaku Gothic ProN", sans-serif;
   --font-en: "Press Start 2P", "DotGothic16", ui-monospace, monospace;
+
+  /* iOS safe areas (0 on desktop / non-notch browsers) */
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left: env(safe-area-inset-left, 0px);
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -67,6 +73,7 @@ body {
   font-family: var(--font-jp);
   line-height: 1.7;
   min-height: 100vh;
+  min-height: 100dvh;
   -webkit-font-smoothing: none;      /* keep glyph edges crunchy */
   text-rendering: optimizeSpeed;
 }
@@ -89,7 +96,15 @@ body::after {
   mix-blend-mode: multiply;
 }
 
-.wrap { max-width: 640px; margin: 0 auto; padding: 22px 16px 56px; }
+.wrap {
+  max-width: 640px;
+  margin: 0 auto;
+  padding:
+    max(22px, var(--safe-top))
+    max(16px, var(--safe-right))
+    max(56px, var(--safe-bottom))
+    max(16px, var(--safe-left));
+}
 
 /* ---------- headings ---------- */
 h1 {
@@ -295,7 +310,7 @@ label.fl {
    ========================================================================== */
 .scorebar {
   position: sticky;
-  top: 0;
+  top: var(--safe-top);
   z-index: 50;
   margin-top: 16px;
   padding: 10px 0 12px;
@@ -834,6 +849,7 @@ label.fl {
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: var(--safe-top) var(--safe-right) var(--safe-bottom) var(--safe-left);
   background:
     repeating-linear-gradient(0deg, rgba(255, 40, 60, .12) 0 3px, transparent 3px 8px),
     radial-gradient(circle at 50% 40%, #3a0d0d, #0a0202 78%);
@@ -987,7 +1003,11 @@ body.in-quiz .ctr { margin-top: 8px; }
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 20px 16px;
+  padding:
+    max(20px, var(--safe-top))
+    max(16px, var(--safe-right))
+    max(20px, var(--safe-bottom))
+    max(16px, var(--safe-left));
   background: rgba(6, 8, 15, 0.82);
   backdrop-filter: blur(2px);
 }
