@@ -67,6 +67,7 @@ if [ "$NATIVE" = false ]; then
   rsync -a "${RSYNC_EXCLUDES[@]}" sw.js "$WWW_DIR/"
 fi
 rsync -a "${RSYNC_EXCLUDES[@]}" css/ "$WWW_DIR/css/"
+rsync -a "${RSYNC_EXCLUDES[@]}" fonts/ "$WWW_DIR/fonts/"
 rsync -a "${RSYNC_EXCLUDES[@]}" js/ "$WWW_DIR/js/"
 rsync -a "${RSYNC_EXCLUDES[@]}" data/ "$WWW_DIR/data/"
 rsync -a "${RSYNC_EXCLUDES[@]}" icons/ "$WWW_DIR/icons/"
@@ -100,6 +101,13 @@ if [ "$NATIVE" = true ]; then
     exit 1
   fi
   echo "OK: native www/ bundle contains no entitlements-mock / MockPurchaseProvider references."
+
+  echo "Running self-hosted-fonts assertion (no external Google Fonts network dependency)..."
+  if grep -r -l -i "fonts\.googleapis\.com\|fonts\.gstatic\.com" "$WWW_DIR"; then
+    echo "ASSERTION FAILED: native www/ bundle references fonts.googleapis.com/fonts.gstatic.com." >&2
+    exit 1
+  fi
+  echo "OK: native www/ bundle contains no fonts.googleapis.com / fonts.gstatic.com references."
 fi
 
 echo "www/ built at $WWW_DIR (native=$NATIVE)"
